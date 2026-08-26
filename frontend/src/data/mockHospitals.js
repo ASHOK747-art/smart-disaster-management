@@ -1,0 +1,38 @@
+export const MOCK_HOSPITALS = [
+  {
+    id: "H-01",
+    name: "Government General Hospital",
+    location: "Park Town, Chennai",
+    status: "OPEN",
+    availableBeds: 42,
+    icuBeds: 6,
+    distanceKm: 3.2,
+  },
+  {
+    id: "H-02",
+    name: "Apollo Emergency Care",
+    location: "Greams Road, Chennai",
+    status: "LIMITED",
+    availableBeds: 8,
+    icuBeds: 1,
+    distanceKm: 5.6,
+  },
+  {
+    id: "H-03",
+    name: "Stanley Medical College Hospital",
+    location: "Royapuram, Chennai",
+    status: "OPEN",
+    availableBeds: 30,
+    icuBeds: 4,
+    distanceKm: 8.1,
+  },
+  {
+    id: "H-04",
+    name: "Kilpauk Medical College Hospital",
+    location: "Kilpauk, Chennai",
+    status: "FULL",
+    availableBeds: 0,
+    icuBeds: 0,
+    distanceKm: 6.4,
+  },
+];
