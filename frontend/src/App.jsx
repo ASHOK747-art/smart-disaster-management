@@ -8,6 +8,7 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import CitizenDashboard from "./pages/citizen/CitizenDashboard";
 import MyReportsPage from "./pages/citizen/MyReportsPage";
 import RiskPredictionPage from "./pages/citizen/RiskPredictionPage";
+import DisasterMapPage from "./pages/public/DisasterMapPage";
 import PlaceholderPage from "./components/common/PlaceholderPage";
 
 function App() {
@@ -26,10 +27,7 @@ function App() {
 
         {/* Linked from the landing page hero and the citizen dashboard quick actions */}
         <Route path="/report-emergency" element={<ReportEmergencyPage />} />
-        <Route
-          path="/disaster-map"
-          element={<PlaceholderPage title="Disaster Map" phase="Phase 2" />}
-        />
+        <Route path="/disaster-map" element={<DisasterMapPage />} />
       </Route>
 
       {/* ---------------- Citizen dashboard (built) ---------------- */}
