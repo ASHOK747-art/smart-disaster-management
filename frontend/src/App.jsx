@@ -12,6 +12,7 @@ import HospitalsPage from "./pages/citizen/HospitalsPage";
 import SheltersPage from "./pages/citizen/SheltersPage";
 import AlertsPage from "./pages/citizen/AlertsPage";
 import ProfilePage from "./pages/citizen/ProfilePage";
+import RescueDashboard from "./pages/rescue/RescueDashboard";
 import DisasterMapPage from "./pages/public/DisasterMapPage";
 import PlaceholderPage from "./components/common/PlaceholderPage";
 
@@ -45,7 +46,7 @@ function App() {
         <Route path="/citizen/profile" element={<ProfilePage />} />
 
         {/* Other role dashboards — built in later phases */}
-        <Route path="/rescue/dashboard" element={<PlaceholderPage title="Rescue Team Dashboard" phase="Phase 3" />} />
+        <Route path="/rescue/dashboard" element={<RescueDashboard />} />
         <Route path="/volunteer/dashboard" element={<PlaceholderPage title="Volunteer Dashboard" phase="Phase 3" />} />
         <Route path="/hospital/dashboard" element={<PlaceholderPage title="Hospital Dashboard" phase="Phase 3" />} />
         <Route path="/admin/dashboard" element={<PlaceholderPage title="Admin Dashboard" phase="Phase 4" />} />

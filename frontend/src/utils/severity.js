@@ -24,6 +24,12 @@ const STATUS_TONE = {
   available: "safe",
   limited: "warning",
   full: "critical",
+  // Rescue team mission pipeline (distinct from the citizen-facing incident pipeline above)
+  assigned: "info",
+  accepted: "warning",
+  "en route": "warning",
+  "on scene": "critical",
+  "rescue completed": "safe",
 };
 
 export function severityTone(severity) {
@@ -36,5 +42,5 @@ export function statusTone(status) {
 
 export function shouldPulse(severityOrStatus) {
   const v = (severityOrStatus || "").toLowerCase();
-  return v === "critical" || v === "active" || v === "rescue in progress";
+  return v === "critical" || v === "active" || v === "rescue in progress" || v === "on scene";
 }
