@@ -8,6 +8,10 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import CitizenDashboard from "./pages/citizen/CitizenDashboard";
 import MyReportsPage from "./pages/citizen/MyReportsPage";
 import RiskPredictionPage from "./pages/citizen/RiskPredictionPage";
+import HospitalsPage from "./pages/citizen/HospitalsPage";
+import SheltersPage from "./pages/citizen/SheltersPage";
+import AlertsPage from "./pages/citizen/AlertsPage";
+import ProfilePage from "./pages/citizen/ProfilePage";
 import DisasterMapPage from "./pages/public/DisasterMapPage";
 import PlaceholderPage from "./components/common/PlaceholderPage";
 
@@ -35,10 +39,10 @@ function App() {
         <Route path="/citizen/dashboard" element={<CitizenDashboard />} />
         <Route path="/citizen/my-reports" element={<MyReportsPage />} />
         <Route path="/citizen/risk-prediction" element={<RiskPredictionPage />} />
-        <Route path="/citizen/hospitals" element={<PlaceholderPage title="Hospitals" phase="Phase 2" />} />
-        <Route path="/citizen/shelters" element={<PlaceholderPage title="Shelters" phase="Phase 2" />} />
-        <Route path="/citizen/alerts" element={<PlaceholderPage title="Alerts" phase="Phase 2" />} />
-        <Route path="/citizen/profile" element={<PlaceholderPage title="Profile" phase="Phase 2" />} />
+        <Route path="/citizen/hospitals" element={<HospitalsPage />} />
+        <Route path="/citizen/shelters" element={<SheltersPage />} />
+        <Route path="/citizen/alerts" element={<AlertsPage />} />
+        <Route path="/citizen/profile" element={<ProfilePage />} />
 
         {/* Other role dashboards — built in later phases */}
         <Route path="/rescue/dashboard" element={<PlaceholderPage title="Rescue Team Dashboard" phase="Phase 3" />} />

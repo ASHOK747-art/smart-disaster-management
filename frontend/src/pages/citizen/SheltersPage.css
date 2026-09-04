@@ -1,0 +1,149 @@
+.shelters-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.shelters-page__head h1 {
+  font-size: var(--fs-xl);
+  margin-bottom: var(--sp-1);
+}
+
+.shelters-page__head p {
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.shelters-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+/* ---- Shelter card ---- */
+.shelter-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-5);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+}
+
+.shelter-card__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--safe-100);
+  color: var(--safe-600);
+  flex-shrink: 0;
+}
+
+.shelter-card__body { flex: 1; min-width: 0; }
+
+.shelter-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-2);
+}
+
+.shelter-card__head h3 { font-size: var(--fs-md); }
+
+.shelter-card__location {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  margin-bottom: var(--sp-4);
+}
+
+/* ---- Occupancy bar ---- */
+.shelter-card__occupancy {
+  margin-bottom: var(--sp-4);
+}
+
+.shelter-card__track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--slate-100);
+  overflow: hidden;
+  margin-bottom: var(--sp-2);
+}
+
+.shelter-card__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+.shelter-card__fill[data-tone="safe"] { background: var(--safe-500); }
+.shelter-card__fill[data-tone="warning"] { background: var(--warning-500); }
+.shelter-card__fill[data-tone="critical"] { background: var(--critical-500); }
+
+.shelter-card__occupancy-label {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+/* ---- Facilities ---- */
+.shelter-card__facilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.shelter-card__facilities span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.shelter-card__facility--off {
+  color: var(--slate-400);
+  font-weight: 500;
+}
+
+/* ---- Actions ---- */
+.shelter-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+}
+
+.shelter-card__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-default);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.shelter-card__action:hover {
+  border-color: var(--steel-300);
+  background: var(--slate-50);
+}
+
+@media (max-width: 640px) {
+  .shelter-card {
+    flex-direction: column;
+  }
+  .shelter-card__actions {
+    flex-direction: row;
+    width: 100%;
+  }
+  .shelter-card__action { flex: 1; justify-content: center; }
+}
