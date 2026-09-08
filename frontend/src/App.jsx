@@ -13,6 +13,9 @@ import SheltersPage from "./pages/citizen/SheltersPage";
 import AlertsPage from "./pages/citizen/AlertsPage";
 import ProfilePage from "./pages/citizen/ProfilePage";
 import RescueDashboard from "./pages/rescue/RescueDashboard";
+import VolunteerDashboard from "./pages/volunteer/VolunteerDashboard";
+import HospitalDashboard from "./pages/hospital/HospitalDashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import DisasterMapPage from "./pages/public/DisasterMapPage";
 import PlaceholderPage from "./components/common/PlaceholderPage";
 
@@ -47,9 +50,9 @@ function App() {
 
         {/* Other role dashboards — built in later phases */}
         <Route path="/rescue/dashboard" element={<RescueDashboard />} />
-        <Route path="/volunteer/dashboard" element={<PlaceholderPage title="Volunteer Dashboard" phase="Phase 3" />} />
-        <Route path="/hospital/dashboard" element={<PlaceholderPage title="Hospital Dashboard" phase="Phase 3" />} />
-        <Route path="/admin/dashboard" element={<PlaceholderPage title="Admin Dashboard" phase="Phase 4" />} />
+        <Route path="/volunteer/dashboard" element={<VolunteerDashboard />} />
+        <Route path="/hospital/dashboard" element={<HospitalDashboard />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Route>
 
       <Route path="*" element={<PlaceholderPage title="Page not found" phase="a future phase" />} />

@@ -30,6 +30,9 @@ const STATUS_TONE = {
   "en route": "warning",
   "on scene": "critical",
   "rescue completed": "safe",
+  // Hospital emergency-request pipeline
+  pending: "info",
+  rejected: "neutral",
 };
 
 export function severityTone(severity) {
