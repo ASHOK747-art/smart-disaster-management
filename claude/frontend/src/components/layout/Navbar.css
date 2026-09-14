@@ -1,0 +1,112 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.navbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--topbar-h);
+  gap: var(--sp-5);
+}
+
+.navbar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-md);
+  color: var(--navy-900);
+}
+
+.navbar__brand small {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.navbar__brand-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  background: var(--navy-900);
+  color: var(--text-inverse);
+  flex-shrink: 0;
+}
+
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-6);
+  margin-inline: auto;
+}
+
+.navbar__link {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding-block: var(--sp-2);
+  border-bottom: 2px solid transparent;
+}
+
+.navbar__link:hover,
+.navbar__link.active {
+  color: var(--navy-900);
+}
+
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.navbar__actions--mobile { display: none; }
+.navbar__toggle { display: none; background: none; border: none; color: var(--navy-900); }
+
+@media (max-width: 860px) {
+  .navbar__actions--desktop { display: none; }
+  .navbar__toggle { display: block; }
+
+  .navbar__links {
+    position: fixed;
+    inset: var(--topbar-h) 0 0 0;
+    background: var(--white);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: var(--sp-4) var(--sp-5);
+    transform: translateY(-8px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-base) var(--ease-standard), transform var(--dur-base) var(--ease-standard);
+  }
+
+  .navbar__links--open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .navbar__link {
+    padding: var(--sp-4) 0;
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  .navbar__actions--mobile {
+    display: flex;
+    flex-direction: column;
+    margin-top: var(--sp-5);
+  }
+}

@@ -1,0 +1,164 @@
+.my-reports {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.my-reports__head h1 {
+  font-size: var(--fs-xl);
+  margin-bottom: var(--sp-1);
+}
+
+.my-reports__head p {
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+}
+
+/* ---- Summary strip ---- */
+
+.my-reports__summary {
+  display: flex;
+  gap: var(--sp-6);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+}
+
+.my-reports__summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.my-reports__summary-item > span:first-child {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.my-reports__summary-item > span:last-child {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+/* ---- Filters ---- */
+
+.my-reports__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.my-reports__filter {
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: 999px;
+  border: 1.5px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  transition: border-color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+}
+
+.my-reports__filter:hover {
+  border-color: var(--steel-300);
+}
+
+.my-reports__filter--active {
+  border-color: var(--navy-900);
+  background: var(--navy-900);
+  color: var(--white);
+}
+
+/* ---- List ---- */
+
+.my-reports__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+/* ---- Incident detail (inside Modal) ---- */
+
+.incident-detail__badges {
+  display: flex;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+}
+
+.incident-detail h3 {
+  font-size: var(--fs-lg);
+  margin-bottom: var(--sp-2);
+}
+
+.incident-detail__desc {
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  margin-bottom: var(--sp-4);
+}
+
+.incident-detail__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  padding-bottom: var(--sp-5);
+  margin-bottom: var(--sp-5);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.incident-detail__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.incident-detail__timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.incident-detail__step {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--slate-400);
+}
+
+.incident-detail__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--slate-200);
+  flex-shrink: 0;
+}
+
+.incident-detail__step--done {
+  color: var(--text-primary);
+}
+
+.incident-detail__step--done .incident-detail__dot {
+  background: var(--safe-500);
+}
+
+.incident-detail__step--current {
+  font-weight: 700;
+}
+
+.incident-detail__step--current .incident-detail__dot {
+  background: var(--warning-500);
+  box-shadow: 0 0 0 3px var(--warning-100);
+}
+
+@media (max-width: 640px) {
+  .my-reports__summary {
+    flex-wrap: wrap;
+    gap: var(--sp-4);
+  }
+}

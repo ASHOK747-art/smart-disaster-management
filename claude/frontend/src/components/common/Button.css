@@ -1,0 +1,67 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn--sm { padding: var(--sp-2) var(--sp-3); font-size: var(--fs-sm); }
+.btn--md { padding: 0.65rem var(--sp-5); font-size: var(--fs-sm); }
+.btn--lg { padding: var(--sp-4) var(--sp-6); font-size: var(--fs-base); }
+
+.btn--full { width: 100%; }
+
+/* Primary: navy chrome action */
+.btn--primary {
+  background: var(--navy-900);
+  color: var(--text-inverse);
+}
+.btn--primary:hover { background: var(--navy-800); }
+
+/* Secondary: steel accent, for supportive actions */
+.btn--secondary {
+  background: var(--steel-500);
+  color: var(--text-inverse);
+}
+.btn--secondary:hover { background: var(--navy-700); }
+
+/* Outline: quiet, for secondary flows on light surfaces */
+.btn--outline {
+  background: transparent;
+  border-color: var(--slate-200);
+  color: var(--text-primary);
+}
+.btn--outline:hover { border-color: var(--slate-400); background: var(--slate-50); }
+
+/* Critical: reserved strictly for emergency-triggering actions */
+.btn--critical {
+  background: var(--critical-500);
+  color: var(--text-inverse);
+  box-shadow: 0 2px 8px rgba(228, 64, 44, 0.35);
+}
+.btn--critical:hover { background: var(--critical-600); }
+
+/* Ghost: minimal, for toolbars / icon-adjacent actions */
+.btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+.btn--ghost:hover { background: var(--slate-100); color: var(--text-primary); }
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}

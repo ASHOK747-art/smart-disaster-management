@@ -1,0 +1,31 @@
+.placeholder {
+  min-height: calc(100vh - var(--topbar-h));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--sp-10);
+  color: var(--text-secondary);
+}
+
+.placeholder__icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-lg);
+  background: var(--info-100);
+  color: var(--navy-900);
+  margin-bottom: var(--sp-5);
+}
+
+.placeholder h1 {
+  font-size: var(--fs-xl);
+  color: var(--text-primary);
+  margin-bottom: var(--sp-2);
+}
+
+.placeholder p {
+  max-width: 40ch;
+}
