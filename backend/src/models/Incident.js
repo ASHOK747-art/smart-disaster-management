@@ -6,10 +6,11 @@ import mongoose from "mongoose";
 // layer needed when the frontend is wired up in a later phase.
 export const INCIDENT_TYPES = [
   "Flood",
+  "Cyclone",
+  "Landslide",
+  "Heavy Rainfall",
   "Fire",
   "Building Collapse",
-  "Landslide",
-  "Cyclone",
   "Accident",
   "Medical Emergency",
   "Other",
@@ -17,11 +18,12 @@ export const INCIDENT_TYPES = [
 
 export const SEVERITY_LEVELS = ["Low", "Medium", "High", "Critical"];
 
-// Matches the citizen-facing tracking stages, plus "Rejected" for reports an
-// admin determines are invalid/duplicate.
+// Matches citizen and admin stages
 export const INCIDENT_STATUSES = [
+  "Pending",
   "Reported",
   "Verified",
+  "In Progress",
   "Rescue Assigned",
   "Rescue In Progress",
   "Resolved",
@@ -83,7 +85,7 @@ const incidentSchema = new mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 incidentSchema.index({ reporter: 1, createdAt: -1 });

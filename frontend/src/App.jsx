@@ -16,6 +16,7 @@ import RescueDashboard from "./pages/rescue/RescueDashboard";
 import VolunteerDashboard from "./pages/volunteer/VolunteerDashboard";
 import HospitalDashboard from "./pages/hospital/HospitalDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminIncidentsPage from "./pages/admin/AdminIncidentsPage";
 import DisasterMapPage from "./pages/public/DisasterMapPage";
 import PlaceholderPage from "./components/common/PlaceholderPage";
 import ProtectedRoute from "./components/common/ProtectedRoute";
@@ -56,6 +57,7 @@ function App() {
           {/* Rescue dashboard */}
           <Route element={<ProtectedRoute allowedRoles={["rescue", "admin"]} />}>
             <Route path="/rescue/dashboard" element={<RescueDashboard />} />
+            <Route path="/rescue/incidents" element={<AdminIncidentsPage />} />
           </Route>
 
           {/* Volunteer dashboard */}
@@ -68,9 +70,10 @@ function App() {
             <Route path="/hospital/dashboard" element={<HospitalDashboard />} />
           </Route>
 
-          {/* Admin dashboard */}
+          {/* Admin dashboard & incidents */}
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/incidents" element={<AdminIncidentsPage />} />
           </Route>
         </Route>
       </Route>

@@ -53,6 +53,13 @@ function pinIcon(color, glyph) {
   return L.divIcon({ html, className: "map-pin", iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -28] });
 }
 
+function getImageUrl(path) {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  const base = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace(/\/api\/?$/, "");
+  return `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+
 function DisasterMapPage() {
   const [data, setData] = useState(null);
   const [layer, setLayer] = useState("all");
@@ -72,12 +79,15 @@ function DisasterMapPage() {
     const list = [];
 
     if (layer === "all" || layer === "incidents") {
-      data.incidents.forEach((i) =>
+      data.incidents.forEach((i) => {
+        if (typeof i.latitude !== "number" || typeof i.longitude !== "number" || isNaN(i.latitude) || isNaN(i.longitude)) {
+          return;
+        }
         list.push({
-          key: `incident-${i.id}`,
+          key: `incident-${i.id || i._id}`,
           lat: i.latitude,
           lng: i.longitude,
-          icon: pinIcon(TONE_COLOR[severityTone(i.severity)], "!"),
+          icon: pinIcon(TONE_COLOR[severityTone(i.severity)] || TONE_COLOR.critical, "!"),
           render: () => (
             <>
               <div className="map-popup__head">
@@ -87,15 +97,30 @@ function DisasterMapPage() {
                 </StatusBadge>
               </div>
               <p>{i.description}</p>
+              {i.images && i.images.length > 0 && (
+                <div style={{ marginTop: "6px", marginBottom: "6px" }}>
+                  <img
+                    src={getImageUrl(i.images[0])}
+                    alt="Scene"
+                    style={{
+                      width: "100%",
+                      maxHeight: "100px",
+                      objectFit: "cover",
+                      borderRadius: "6px",
+                      border: "1px solid #e4e7ec",
+                    }}
+                  />
+                </div>
+              )}
               <div className="map-popup__meta">
                 <span><MapPin size={12} /> {i.location}</span>
-                <span><Clock size={12} /> {timeAgo(i.reportedAt)}</span>
+                <span><Clock size={12} /> {timeAgo(i.reportedAt || i.createdAt)}</span>
               </div>
               <StatusBadge tone={severityTone(i.severity)}>{i.severity}</StatusBadge>
             </>
           ),
-        })
-      );
+        });
+      });
     }
 
     if (layer === "all" || layer === "hospitals") {

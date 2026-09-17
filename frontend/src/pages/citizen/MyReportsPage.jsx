@@ -13,6 +13,13 @@ import "./MyReportsPage.css";
 
 const FILTERS = ["All", ...INCIDENT_STAGES];
 
+function getImageUrl(path) {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  const base = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace(/\/api\/?$/, "");
+  return `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+}
+
 function MyReportsPage() {
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,11 +28,17 @@ function MyReportsPage() {
 
   useEffect(() => {
     let cancelled = false;
-    getMyIncidents().then((res) => {
-      if (cancelled) return;
-      setIncidents(res);
-      setLoading(false);
-    });
+    getMyIncidents()
+      .then((res) => {
+        if (cancelled) return;
+        setIncidents(res);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error("Failed to load incidents:", err);
+        setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
@@ -34,7 +47,7 @@ function MyReportsPage() {
   if (loading) return <LoadingSpinner label="Loading your reports…" />;
 
   const filtered = filter === "All" ? incidents : incidents.filter((i) => i.status === filter);
-  const activeCount = incidents.filter((i) => i.status !== "Resolved").length;
+  const activeCount = incidents.filter((i) => !["Resolved", "Rejected"].includes(i.status)).length;
   const resolvedCount = incidents.filter((i) => i.status === "Resolved").length;
 
   return (
@@ -99,8 +112,17 @@ function MyReportsPage() {
 }
 
 function IncidentDetail({ incident }) {
-  const { type, description, peopleAffected, severity, location, reportedAt, status, assignedTeam } =
-    incident;
+  const {
+    type,
+    description,
+    peopleAffected,
+    severity,
+    location,
+    reportedAt,
+    status,
+    assignedTeam,
+    images,
+  } = incident;
   const currentIndex = INCIDENT_STAGES.indexOf(status);
 
   return (
@@ -114,6 +136,26 @@ function IncidentDetail({ incident }) {
 
       <h3>{type}</h3>
       <p className="incident-detail__desc">{description}</p>
+
+      {images && images.length > 0 && (
+        <div style={{ marginTop: "12px", marginBottom: "16px" }}>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            {images.map((img, idx) => (
+              <img
+                key={idx}
+                src={getImageUrl(img)}
+                alt="Scene photo"
+                style={{
+                  maxHeight: "180px",
+                  borderRadius: "8px",
+                  objectFit: "cover",
+                  border: "1px solid var(--border-default, #e4e7ec)",
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="incident-detail__meta">
         <span>

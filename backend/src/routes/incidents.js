@@ -5,15 +5,17 @@ import {
   getIncidentById,
   updateIncident,
   deleteIncident,
+  getPublicVerifiedIncidents,
 } from "../controllers/incidentController.js";
 import { authenticate } from "../middleware/auth.js";
 import { uploadIncidentImage } from "../middleware/upload.js";
 
 const router = Router();
 
-// Every incident route requires a logged-in user; role-specific rules are
-// enforced inside the controller since they depend on more than just role
-// (e.g. "citizen, but only if they own this incident").
+// Public route: GIS map can view active/verified incidents without authentication
+router.get("/public", getPublicVerifiedIncidents);
+
+// Protected routes: require authenticated session
 router.use(authenticate);
 
 router.post("/", uploadIncidentImage, createIncident);

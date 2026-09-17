@@ -21,10 +21,12 @@ import StatusBadge from "../../components/common/StatusBadge";
 import { INCIDENT_TYPES } from "../../data/mockIncidents";
 import { SEVERITY_LEVELS, severityTone } from "../../utils/severity";
 import { submitIncident } from "../../services/incidentService";
+import { useAuth } from "../../hooks/useAuth";
 import "./ReportEmergencyPage.css";
 
 const TYPE_ICONS = {
   Flood: CloudRain,
+  "Heavy Rainfall": CloudRain,
   Fire: Flame,
   "Building Collapse": Building2,
   Landslide: Mountain,
@@ -43,6 +45,7 @@ const INITIAL_FORM = {
 };
 
 function ReportEmergencyPage() {
+  const { isAuthenticated } = useAuth();
   const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
   const [coords, setCoords] = useState(null);
@@ -52,6 +55,7 @@ function ReportEmergencyPage() {
   const [photoPreview, setPhotoPreview] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(null);
+  const [submitError, setSubmitError] = useState("");
 
   // Release the object URL when the photo changes or the page unmounts.
   useEffect(() => {
@@ -127,20 +131,34 @@ function ReportEmergencyPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setSubmitError("");
     if (!validate()) return;
+
+    if (!isAuthenticated) {
+      setSubmitError("You must be logged in to submit an emergency report. Please sign in or register.");
+      return;
+    }
 
     setSubmitting(true);
     try {
-      const incident = await submitIncident({
-        type: form.type,
-        severity: form.severity,
-        description: form.description.trim(),
-        location: form.location.trim(),
-        peopleAffected: Number(form.peopleAffected),
-        ...(coords && { latitude: coords.latitude, longitude: coords.longitude }),
-        hasPhoto: Boolean(photo),
-      });
+      const formData = new FormData();
+      formData.append("type", form.type);
+      formData.append("severity", form.severity);
+      formData.append("description", form.description.trim());
+      formData.append("location", form.location.trim());
+      formData.append("peopleAffected", Number(form.peopleAffected));
+      if (coords?.latitude && coords?.longitude) {
+        formData.append("latitude", coords.latitude);
+        formData.append("longitude", coords.longitude);
+      }
+      if (photo) {
+        formData.append("image", photo);
+      }
+
+      const incident = await submitIncident(formData);
       setSubmitted(incident);
+    } catch (err) {
+      setSubmitError(err.response?.data?.message || err.message || "Failed to submit report.");
     } finally {
       setSubmitting(false);
     }
@@ -151,6 +169,7 @@ function ReportEmergencyPage() {
     setErrors({});
     setCoords(null);
     setGeoError("");
+    setSubmitError("");
     removePhoto();
     setSubmitted(null);
   }
@@ -220,6 +239,40 @@ function ReportEmergencyPage() {
           an emergency call.
         </p>
       </div>
+
+      {submitError && (
+        <div
+          className="report-page__error-banner"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            padding: "12px 16px",
+            marginBottom: "20px",
+            borderRadius: "8px",
+            backgroundColor: "#fef3f2",
+            color: "#b42318",
+            border: "1px solid #fee4e2",
+            fontSize: "14px",
+          }}
+        >
+          <AlertTriangle size={18} />
+          <span>{submitError}</span>
+          {!isAuthenticated && (
+            <Link
+              to="/login"
+              style={{
+                marginLeft: "auto",
+                fontWeight: 600,
+                color: "#b42318",
+                textDecoration: "underline",
+              }}
+            >
+              Sign In
+            </Link>
+          )}
+        </div>
+      )}
 
       <form className="report-form" onSubmit={handleSubmit} noValidate>
         {/* ---- Type ---- */}

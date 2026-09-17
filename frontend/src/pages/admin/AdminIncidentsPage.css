@@ -1,0 +1,284 @@
+.admin-incidents {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.admin-incidents__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.admin-incidents__head h1 {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.admin-incidents__head p {
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  margin-top: var(--sp-1);
+}
+
+.admin-incidents__toast {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--safe-50, #ecfdf3);
+  color: var(--safe-700, #027a48);
+  border: 1px solid var(--safe-200, #a6f4c5);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+}
+
+.admin-incidents__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--sp-3);
+}
+
+.admin-incidents__stat-item {
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-4);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-incidents__stat-item span:first-child {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.admin-incidents__stat-item span:last-child {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+.admin-incidents__stat-item--warning span:first-child { color: var(--warning-600, #d97706); }
+.admin-incidents__stat-item--info span:first-child { color: var(--brand-600, #0284c7); }
+.admin-incidents__stat-item--critical span:first-child { color: var(--critical-600, #dc2626); }
+.admin-incidents__stat-item--safe span:first-child { color: var(--safe-600, #16a34a); }
+
+.admin-incidents__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.admin-incidents__search {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  flex: 1;
+  min-width: 260px;
+  max-width: 420px;
+}
+
+.admin-incidents__search input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: var(--fs-sm);
+  width: 100%;
+  color: var(--text-primary);
+}
+
+.admin-incidents__filters {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.admin-incidents__filter-btn {
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.admin-incidents__filter-btn:hover {
+  background: var(--slate-100, #f1f5f9);
+  color: var(--text-primary);
+}
+
+.admin-incidents__filter-btn--active {
+  background: var(--navy-900, #0b1e3d);
+  color: var(--white, #ffffff);
+  border-color: var(--navy-900, #0b1e3d);
+}
+
+.admin-incidents__table-wrapper {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+}
+
+.admin-incidents__table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: var(--fs-sm);
+}
+
+.admin-incidents__table th {
+  background: var(--slate-50, #f8fafc);
+  padding: 12px 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-default);
+  white-space: nowrap;
+}
+
+.admin-incidents__table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.admin-incidents__table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-incidents__table tr:hover td {
+  background: var(--slate-50, #f8fafc);
+}
+
+.admin-incidents__location {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-incidents__time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+}
+
+.admin-incidents__select {
+  padding: 6px 10px;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.admin-incidents__select:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Modal styles */
+.admin-incident-modal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.admin-incident-modal__badges {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.admin-incident-modal h2 {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+}
+
+.admin-incident-modal__desc {
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.admin-incident-modal__meta {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  background: var(--slate-50, #f8fafc);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.admin-incident-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--border-default);
+}
+
+.admin-incident-modal__actions label {
+  font-weight: 600;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.admin-incident-modal__status-btns {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.admin-incident-modal__status-btn {
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.admin-incident-modal__status-btn:hover {
+  background: var(--slate-100, #f1f5f9);
+}
+
+.admin-incident-modal__status-btn--active {
+  background: var(--brand-600, #0284c7);
+  color: white;
+  border-color: var(--brand-600, #0284c7);
+}
+

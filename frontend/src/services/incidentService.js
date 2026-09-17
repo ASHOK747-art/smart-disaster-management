@@ -1,24 +1,65 @@
-import { MOCK_INCIDENTS } from "../data/mockIncidents";
+import api from "../api/axiosClient";
 
-const DELAY = 400;
-const wait = (value) => new Promise((resolve) => setTimeout(() => resolve(value), DELAY));
-
-export function getMyIncidents() {
-  return wait(MOCK_INCIDENTS);
-}
-
-export function getIncidentById(id) {
-  const incident = MOCK_INCIDENTS.find((i) => i.id === id);
-  return incident ? wait(incident) : Promise.reject(new Error("Incident not found."));
-}
-
-export function submitIncident(payload) {
-  const newIncident = {
-    id: `INC-${Math.floor(1000 + Math.random() * 9000)}`,
-    status: "Reported",
-    assignedTeam: null,
-    reportedAt: new Date().toISOString(),
-    ...payload,
+function normalizeIncident(incident) {
+  if (!incident) return incident;
+  return {
+    ...incident,
+    id: incident.id || incident._id,
+    reportedAt: incident.reportedAt || incident.createdAt,
   };
-  return wait(newIncident);
+}
+
+export async function submitIncident(payload) {
+  let res;
+  if (payload instanceof FormData) {
+    res = await api.post("/incidents", payload, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  } else if (payload.photo || payload.image) {
+    const formData = new FormData();
+    Object.entries(payload).forEach(([key, value]) => {
+      if (key === "photo" || key === "image") {
+        if (value instanceof File || value instanceof Blob) {
+          formData.append("image", value);
+        }
+      } else if (value !== undefined && value !== null) {
+        formData.append(key, value);
+      }
+    });
+    res = await api.post("/incidents", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+  } else {
+    res = await api.post("/incidents", payload);
+  }
+
+  return normalizeIncident(res.data?.incident);
+}
+
+export async function getMyIncidents(params = {}) {
+  const res = await api.get("/incidents", { params });
+  const list = res.data?.incidents || [];
+  return list.map(normalizeIncident);
+}
+
+export async function getAllIncidents(params = {}) {
+  const res = await api.get("/incidents", { params });
+  const list = res.data?.incidents || [];
+  return list.map(normalizeIncident);
+}
+
+export async function getIncidentById(id) {
+  const res = await api.get(`/incidents/${id}`);
+  return normalizeIncident(res.data?.incident);
+}
+
+export async function updateIncidentStatus(id, status, extra = {}) {
+  const res = await api.put(`/incidents/${id}`, { status, ...extra });
+  return normalizeIncident(res.data?.incident);
+}
+
+export async function getPublicIncidents() {
+  const res = await api.get("/incidents/public");
+  const list = res.data?.incidents || [];
+  return list.map(normalizeIncident);
 }

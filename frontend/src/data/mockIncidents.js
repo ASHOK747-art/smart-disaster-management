@@ -1,6 +1,8 @@
 export const INCIDENT_STAGES = [
+  "Pending",
   "Reported",
   "Verified",
+  "In Progress",
   "Rescue Assigned",
   "Rescue In Progress",
   "Resolved",
@@ -9,10 +11,11 @@ export const INCIDENT_STAGES = [
 // Used by the emergency reporting form's type selector.
 export const INCIDENT_TYPES = [
   "Flood",
+  "Cyclone",
+  "Landslide",
+  "Heavy Rainfall",
   "Fire",
   "Building Collapse",
-  "Landslide",
-  "Cyclone",
   "Accident",
   "Medical Emergency",
   "Other",

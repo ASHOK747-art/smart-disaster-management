@@ -8,20 +8,50 @@ function imagePathFor(req) {
   return req.file ? `/uploads/${req.file.filename}` : null;
 }
 
+function normalizeType(val) {
+  if (!val) return "Other";
+  const trimmed = val.trim();
+  const match = INCIDENT_TYPES.find((t) => t.toLowerCase() === trimmed.toLowerCase());
+  return match || trimmed;
+}
+
+function normalizeSeverity(val) {
+  if (!val) return "Medium";
+  const trimmed = val.trim();
+  const match = SEVERITY_LEVELS.find((s) => s.toLowerCase() === trimmed.toLowerCase());
+  return match || "Medium";
+}
+
 // POST /api/incidents
 // Any authenticated user can file a report; it's recorded against them as reporter.
 export const createIncident = asyncHandler(async (req, res) => {
-  const { type, severity, description, location, latitude, longitude, peopleAffected } = req.body;
-
-  const incident = new Incident({
-    reporter: req.user._id,
+  const {
     type,
+    disasterType,
     severity,
     description,
     location,
-    latitude: latitude !== undefined ? Number(latitude) : undefined,
-    longitude: longitude !== undefined ? Number(longitude) : undefined,
-    peopleAffected: peopleAffected !== undefined ? Number(peopleAffected) : undefined,
+    latitude,
+    longitude,
+    peopleAffected,
+    status,
+  } = req.body;
+
+  const resolvedType = normalizeType(disasterType || type);
+  const resolvedSeverity = normalizeSeverity(severity);
+
+  const incident = new Incident({
+    reporter: req.user._id,
+    type: resolvedType,
+    severity: resolvedSeverity,
+    description,
+    location,
+    latitude: latitude !== undefined && latitude !== "" ? Number(latitude) : undefined,
+    longitude: longitude !== undefined && longitude !== "" ? Number(longitude) : undefined,
+    peopleAffected: peopleAffected !== undefined && peopleAffected !== "" ? Number(peopleAffected) : 1,
+    ...(status && INCIDENT_STATUSES.some((s) => s.toLowerCase() === status.toLowerCase())
+      ? { status: INCIDENT_STATUSES.find((s) => s.toLowerCase() === status.toLowerCase()) }
+      : {}),
   });
 
   const imagePath = imagePathFor(req);
@@ -85,7 +115,7 @@ export const updateIncident = asyncHandler(async (req, res) => {
     if (!isOwner) {
       throw new ApiError(403, "You can only update your own incident reports.");
     }
-    if (incident.status !== "Reported") {
+    if (!["Reported", "Pending"].includes(incident.status)) {
       throw new ApiError(400, "This report has already been verified and can no longer be edited.");
     }
     const { description, location, latitude, longitude, peopleAffected } = req.body;
@@ -95,23 +125,22 @@ export const updateIncident = asyncHandler(async (req, res) => {
     if (longitude !== undefined) incident.longitude = Number(longitude);
     if (peopleAffected !== undefined) incident.peopleAffected = Number(peopleAffected);
   } else if (isResponder) {
-    const { type, severity, status, location, description, peopleAffected, assignedTeam } = req.body;
-    if (type !== undefined) incident.type = type;
+    const { type, disasterType, severity, status, location, description, peopleAffected, assignedTeam } = req.body;
+    const resolvedType = disasterType || type;
+    if (resolvedType !== undefined) incident.type = normalizeType(resolvedType);
     if (description !== undefined) incident.description = description;
     if (location !== undefined) incident.location = location;
     if (peopleAffected !== undefined) incident.peopleAffected = Number(peopleAffected);
     if (assignedTeam !== undefined) incident.assignedTeam = assignedTeam;
     if (severity !== undefined) {
-      if (!SEVERITY_LEVELS.includes(severity)) {
-        throw new ApiError(400, `Severity must be one of: ${SEVERITY_LEVELS.join(", ")}`);
-      }
-      incident.severity = severity;
+      incident.severity = normalizeSeverity(severity);
     }
     if (status !== undefined) {
-      if (!INCIDENT_STATUSES.includes(status)) {
+      const match = INCIDENT_STATUSES.find((s) => s.toLowerCase() === status.trim().toLowerCase());
+      if (!match) {
         throw new ApiError(400, `Status must be one of: ${INCIDENT_STATUSES.join(", ")}`);
       }
-      incident.status = status;
+      incident.status = match;
     }
   } else {
     throw new ApiError(403, "You don't have permission to update incidents.");
@@ -124,6 +153,18 @@ export const updateIncident = asyncHandler(async (req, res) => {
   await incident.populate("reporter", REPORTER_FIELDS);
 
   res.json({ success: true, incident });
+});
+
+// GET /api/incidents/public
+// Returns active/verified incidents for public consumption and GIS mapping.
+export const getPublicVerifiedIncidents = asyncHandler(async (_req, res) => {
+  const incidents = await Incident.find({
+    status: { $ne: "Rejected" },
+  })
+    .sort({ createdAt: -1 })
+    .select("type severity status description location latitude longitude images createdAt");
+
+  res.json({ success: true, count: incidents.length, incidents });
 });
 
 // DELETE /api/incidents/:id
