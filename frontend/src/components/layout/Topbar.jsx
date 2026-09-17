@@ -1,8 +1,16 @@
 import { Menu, Bell, LogOut } from "lucide-react";
-import { Link } from "react-router-dom";
 import "./Topbar.css";
 
-function Topbar({ onMenuClick, roleLabel, userName = "Demo User", notificationCount = 3 }) {
+function Topbar({
+  onMenuClick,
+  roleLabel,
+  userName = "Demo User",
+  userRole = "",
+  notificationCount = 3,
+  onLogout,
+}) {
+  const avatarLetter = userName ? userName.charAt(0).toUpperCase() : "U";
+
   return (
     <header className="topbar">
       <button className="topbar__menu" onClick={onMenuClick} aria-label="Open menu">
@@ -19,12 +27,21 @@ function Topbar({ onMenuClick, roleLabel, userName = "Demo User", notificationCo
           {notificationCount > 0 && <span className="topbar__badge">{notificationCount}</span>}
         </button>
         <div className="topbar__user">
-          <span className="topbar__avatar">{userName.charAt(0)}</span>
-          <span className="topbar__user-name">{userName}</span>
+          <span className="topbar__avatar">{avatarLetter}</span>
+          <div className="topbar__user-info">
+            <span className="topbar__user-name">{userName}</span>
+            {userRole && <span className="topbar__user-role">{userRole}</span>}
+          </div>
         </div>
-        <Link to="/login" className="topbar__icon-btn" aria-label="Logout">
+        <button
+          type="button"
+          onClick={onLogout}
+          className="topbar__icon-btn"
+          aria-label="Logout"
+          title="Logout"
+        >
           <LogOut size={18} />
-        </Link>
+        </button>
       </div>
     </header>
   );

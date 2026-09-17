@@ -43,6 +43,7 @@
   background: transparent;
   border: none;
   color: var(--text-secondary);
+  cursor: pointer;
 }
 .topbar__icon-btn:hover { background: var(--slate-100); color: var(--text-primary); }
 
@@ -83,13 +84,26 @@
   flex-shrink: 0;
 }
 
+.topbar__user-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
 .topbar__user-name {
   font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--text-primary);
 }
 
+.topbar__user-role {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-tertiary, #64748b);
+  text-transform: capitalize;
+}
+
 @media (max-width: 980px) {
   .topbar__menu { display: grid; place-items: center; }
-  .topbar__user-name { display: none; }
+  .topbar__user-info { display: none; }
 }

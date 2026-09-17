@@ -18,6 +18,7 @@ import HospitalDashboard from "./pages/hospital/HospitalDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import DisasterMapPage from "./pages/public/DisasterMapPage";
 import PlaceholderPage from "./components/common/PlaceholderPage";
+import ProtectedRoute from "./components/common/ProtectedRoute";
 
 function App() {
   return (
@@ -38,21 +39,40 @@ function App() {
         <Route path="/disaster-map" element={<DisasterMapPage />} />
       </Route>
 
-      {/* ---------------- Citizen dashboard (built) ---------------- */}
-      <Route element={<DashboardLayout />}>
-        <Route path="/citizen/dashboard" element={<CitizenDashboard />} />
-        <Route path="/citizen/my-reports" element={<MyReportsPage />} />
-        <Route path="/citizen/risk-prediction" element={<RiskPredictionPage />} />
-        <Route path="/citizen/hospitals" element={<HospitalsPage />} />
-        <Route path="/citizen/shelters" element={<SheltersPage />} />
-        <Route path="/citizen/alerts" element={<AlertsPage />} />
-        <Route path="/citizen/profile" element={<ProfilePage />} />
+      {/* ---------------- Protected Dashboards ---------------- */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<DashboardLayout />}>
+          {/* Citizen routes */}
+          <Route element={<ProtectedRoute allowedRoles={["citizen", "admin"]} />}>
+            <Route path="/citizen/dashboard" element={<CitizenDashboard />} />
+            <Route path="/citizen/my-reports" element={<MyReportsPage />} />
+            <Route path="/citizen/risk-prediction" element={<RiskPredictionPage />} />
+            <Route path="/citizen/hospitals" element={<HospitalsPage />} />
+            <Route path="/citizen/shelters" element={<SheltersPage />} />
+            <Route path="/citizen/alerts" element={<AlertsPage />} />
+            <Route path="/citizen/profile" element={<ProfilePage />} />
+          </Route>
 
-        {/* Other role dashboards — built in later phases */}
-        <Route path="/rescue/dashboard" element={<RescueDashboard />} />
-        <Route path="/volunteer/dashboard" element={<VolunteerDashboard />} />
-        <Route path="/hospital/dashboard" element={<HospitalDashboard />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          {/* Rescue dashboard */}
+          <Route element={<ProtectedRoute allowedRoles={["rescue", "admin"]} />}>
+            <Route path="/rescue/dashboard" element={<RescueDashboard />} />
+          </Route>
+
+          {/* Volunteer dashboard */}
+          <Route element={<ProtectedRoute allowedRoles={["volunteer", "admin"]} />}>
+            <Route path="/volunteer/dashboard" element={<VolunteerDashboard />} />
+          </Route>
+
+          {/* Hospital dashboard */}
+          <Route element={<ProtectedRoute allowedRoles={["hospital", "admin"]} />}>
+            <Route path="/hospital/dashboard" element={<HospitalDashboard />} />
+          </Route>
+
+          {/* Admin dashboard */}
+          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          </Route>
+        </Route>
       </Route>
 
       <Route path="*" element={<PlaceholderPage title="Page not found" phase="a future phase" />} />

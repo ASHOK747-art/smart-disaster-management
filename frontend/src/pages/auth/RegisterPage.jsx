@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import Button from "../../components/common/Button";
 import { ROLES, DASHBOARD_ROUTE_BY_ROLE } from "../../data/roles";
-import { register } from "../../services/authService";
+import { useAuth } from "../../hooks/useAuth";
 import "./Auth.css";
 
 const INITIAL_FORM = {
@@ -19,6 +19,7 @@ const INITIAL_FORM = {
 
 function RegisterPage() {
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [role, setRole] = useState("citizen");
   const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
@@ -48,10 +49,20 @@ function RegisterPage() {
     if (!validate()) return;
     setLoading(true);
     try {
-      await register({ ...form, role });
-      navigate(DASHBOARD_ROUTE_BY_ROLE[role]);
+      const payload = {
+        fullName: form.fullName.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        password: form.password,
+        location: form.location.trim(),
+        role,
+        ...(role === "volunteer" ? { skills: form.skills, availability: form.availability } : {}),
+      };
+      const data = await register(payload);
+      const userRole = data?.user?.role || role;
+      navigate(DASHBOARD_ROUTE_BY_ROLE[userRole] || "/citizen/dashboard", { replace: true });
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || "Failed to create account.");
     } finally {
       setLoading(false);
     }

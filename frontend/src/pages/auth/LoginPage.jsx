@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import Button from "../../components/common/Button";
 import { ROLES, DASHBOARD_ROUTE_BY_ROLE } from "../../data/roles";
-import { login } from "../../services/authService";
+import { useAuth } from "../../hooks/useAuth";
 import "./Auth.css";
 
 function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
   const [role, setRole] = useState("citizen");
   const [form, setForm] = useState({ identifier: "", password: "", remember: false });
   const [error, setError] = useState("");
@@ -23,10 +25,12 @@ function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      await login({ ...form, role });
-      navigate(DASHBOARD_ROUTE_BY_ROLE[role]);
+      const data = await login({ identifier: form.identifier, password: form.password });
+      const userRole = data?.user?.role || role;
+      const destination = location.state?.from?.pathname || DASHBOARD_ROUTE_BY_ROLE[userRole] || "/citizen/dashboard";
+      navigate(destination, { replace: true });
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message || "Invalid email/phone or password.");
     } finally {
       setLoading(false);
     }

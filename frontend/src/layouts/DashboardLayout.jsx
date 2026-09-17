@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "../components/layout/Sidebar";
 import Topbar from "../components/layout/Topbar";
 import { NAV_BY_ROLE, ROLE_LABEL } from "../data/navigation";
+import { useAuth } from "../hooks/useAuth";
 import "./DashboardLayout.css";
 
 function roleFromPath(pathname) {
@@ -19,14 +20,28 @@ function pageTitleFromPath(pathname, role) {
 function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
   const role = roleFromPath(location.pathname);
   const pageTitle = pageTitleFromPath(location.pathname, role);
+
+  async function handleLogout() {
+    await logout();
+    navigate("/login", { replace: true });
+  }
 
   return (
     <div className="dashboard-shell">
       <Sidebar items={NAV_BY_ROLE[role]} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="dashboard-shell__main">
-        <Topbar roleLabel={pageTitle} onMenuClick={() => setSidebarOpen(true)} />
+        <Topbar
+          roleLabel={pageTitle}
+          userName={user?.fullName || "User"}
+          userRole={ROLE_LABEL[user?.role] || user?.role || ""}
+          onLogout={handleLogout}
+          onMenuClick={() => setSidebarOpen(true)}
+        />
         <main className="dashboard-shell__content">
           <Outlet />
         </main>
