@@ -1,4 +1,8 @@
-import Incident, { SEVERITY_LEVELS, INCIDENT_STATUSES } from "../models/Incident.js";
+import Incident, {
+  INCIDENT_TYPES,
+  SEVERITY_LEVELS,
+  INCIDENT_STATUSES
+} from "../models/Incident.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
