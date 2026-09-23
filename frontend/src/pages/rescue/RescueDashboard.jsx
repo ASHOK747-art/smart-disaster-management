@@ -9,9 +9,6 @@ import {
   Users,
   Navigation,
   Phone,
-  Boxes,
-  Building2,
-  Home as HomeIcon,
 } from "lucide-react";
 import StatCard from "../../components/common/StatCard";
 import StatusBadge from "../../components/common/StatusBadge";
@@ -19,64 +16,99 @@ import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import EmptyState from "../../components/common/EmptyState";
-import { getMissions, updateMissionStatus } from "../../services/rescueService";
-import { MISSION_STAGES } from "../../data/mockMissions";
+import { getAssignedIncidents, updateIncidentStatus } from "../../services/incidentService";
+import { INCIDENT_STAGES } from "../../data/mockIncidents";
 import { severityTone, statusTone, shouldPulse } from "../../utils/severity";
 import { timeAgo } from "../../utils/formatTime";
 import "leaflet/dist/leaflet.css";
 import "./RescueDashboard.css";
 
-const FILTERS = ["All", ...MISSION_STAGES];
+const FILTERS = ["All", ...INCIDENT_STAGES];
+
+// Statuses a rescue user is allowed to move an incident to.
+const RESCUE_STATUS_OPTIONS = [
+  "Verified",
+  "In Progress",
+  "Rescue Assigned",
+  "Rescue In Progress",
+  "Resolved",
+];
+
+function getImageUrl(path) {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  const base = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace(/\/api\/?$/, "");
+  return `${base}${path.startsWith("/") ? "" : "/"}${path}`;
+}
 
 function RescueDashboard() {
-  const [missions, setMissions] = useState([]);
+  const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
   const [selected, setSelected] = useState(null);
+  const [updatingId, setUpdatingId] = useState(null);
 
   useEffect(() => {
-    let cancelled = false;
-    getMissions().then((res) => {
-      if (cancelled) return;
-      setMissions(res);
-      setLoading(false);
-    });
-    return () => {
-      cancelled = true;
-    };
+    loadIncidents();
   }, []);
 
-  if (loading) return <LoadingSpinner label="Loading your missions…" />;
-
-  async function handleAccept(mission) {
-    const updated = await updateMissionStatus(mission.id, "Accepted");
-    setMissions((prev) => prev.map((m) => (m.id === mission.id ? updated : m)));
+  async function loadIncidents() {
+    try {
+      setLoading(true);
+      const data = await getAssignedIncidents();
+      setIncidents(data);
+    } catch (err) {
+      console.error("Failed to load incidents:", err);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  async function handleAdvance(mission) {
-    const currentIndex = MISSION_STAGES.indexOf(mission.status);
-    const next = MISSION_STAGES[currentIndex + 1];
-    if (!next) return;
-    const updated = await updateMissionStatus(mission.id, next);
-    setMissions((prev) => prev.map((m) => (m.id === mission.id ? updated : m)));
-    setSelected((prev) => (prev && prev.id === mission.id ? updated : prev));
+  async function handleUpdate(id, status, extra = {}) {
+    try {
+      setUpdatingId(id);
+      const updated = await updateIncidentStatus(id, status, extra);
+      setIncidents((prev) => prev.map((inc) => (inc.id === id ? updated : inc)));
+      setSelected((prev) => (prev && prev.id === id ? updated : prev));
+    } catch (err) {
+      console.error("Failed to update incident:", err);
+      alert(err.response?.data?.message || "Failed to update incident.");
+    } finally {
+      setUpdatingId(null);
+    }
   }
 
-  const pendingCount = missions.filter((m) => m.status === "Assigned").length;
-  const activeCount = missions.filter((m) => ["Accepted", "En Route", "On Scene"].includes(m.status)).length;
-  const completedCount = missions.filter((m) => m.status === "Rescue Completed").length;
-  const criticalCount = missions.filter(
-    (m) => m.severity === "Critical" && m.status !== "Rescue Completed"
+  if (loading) return <LoadingSpinner label="Loading active incidents…" />;
+
+  const pendingCount = incidents.filter((i) => ["Pending", "Reported"].includes(i.status)).length;
+  const activeCount = incidents.filter((i) =>
+    ["Verified", "In Progress", "Rescue Assigned", "Rescue In Progress"].includes(i.status)
+  ).length;
+  const completedCount = incidents.filter((i) => i.status === "Resolved").length;
+  const criticalCount = incidents.filter(
+    (i) => i.severity === "Critical" && i.status !== "Resolved"
   ).length;
 
-  const filtered = filter === "All" ? missions : missions.filter((m) => m.status === filter);
+  const filtered = filter === "All" ? incidents : incidents.filter((i) => i.status === filter);
 
   return (
     <div className="rescue-dashboard">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <h2 style={{ marginBottom: "4px" }}>My Assigned Incidents</h2>
+          <p style={{ fontSize: "var(--fs-sm)", color: "var(--text-secondary)" }}>
+            Incidents an admin has assigned to you for response.
+          </p>
+        </div>
+        <Button variant="outline" onClick={loadIncidents}>
+          Refresh
+        </Button>
+      </div>
+
       <div className="stat-grid">
-        <StatCard icon={Ambulance} label="Active Missions" value={activeCount} tone="warning" />
+        <StatCard icon={Ambulance} label="Active Incidents" value={activeCount} tone="warning" />
         <StatCard icon={Clock} label="Pending Requests" value={pendingCount} tone="info" />
-        <StatCard icon={CheckCircle2} label="Completed Missions" value={completedCount} tone="safe" />
+        <StatCard icon={CheckCircle2} label="Resolved" value={completedCount} tone="safe" />
         <StatCard icon={AlertTriangle} label="Critical Incidents" value={criticalCount} tone="critical" />
       </div>
 
@@ -93,16 +125,24 @@ function RescueDashboard() {
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState icon={Ambulance} title="No missions here" message="No missions match this filter right now." />
+        <EmptyState
+          icon={Ambulance}
+          title="No incidents here"
+          message={
+            incidents.length === 0
+              ? "No incidents have been assigned to you yet."
+              : "No incidents match this filter right now."
+          }
+        />
       ) : (
         <div className="rescue-dashboard__list">
-          {filtered.map((mission) => (
-            <MissionCard
-              key={mission.id}
-              mission={mission}
+          {filtered.map((incident) => (
+            <IncidentMissionCard
+              key={incident.id}
+              incident={incident}
               onView={setSelected}
-              onAccept={handleAccept}
-              onAdvance={handleAdvance}
+              onUpdate={handleUpdate}
+              updating={updatingId === incident.id}
             />
           ))}
         </div>
@@ -110,18 +150,18 @@ function RescueDashboard() {
 
       {selected && (
         <Modal title={selected.id} onClose={() => setSelected(null)}>
-          <MissionDetail mission={selected} onAdvance={handleAdvance} />
+          <IncidentMissionDetail incident={selected} onUpdate={handleUpdate} updating={updatingId === selected.id} />
         </Modal>
       )}
     </div>
   );
 }
 
-function MissionCard({ mission, onView, onAccept, onAdvance }) {
-  const { id, type, severity, status, location, peopleAffected, reportedAt, latitude, longitude } = mission;
+function IncidentMissionCard({ incident, onView, onUpdate, updating }) {
+  const { id, type, severity, status, location, peopleAffected, reportedAt, latitude, longitude, assignedTeam } =
+    incident;
+  const hasCoords = typeof latitude === "number" && typeof longitude === "number";
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
-  const isAssigned = status === "Assigned";
-  const isCompleted = status === "Rescue Completed";
 
   return (
     <article className="mission-card">
@@ -140,32 +180,44 @@ function MissionCard({ mission, onView, onAccept, onAdvance }) {
         <span><Users size={13} /> {peopleAffected} affected</span>
         <span><Clock size={13} /> {timeAgo(reportedAt)}</span>
         <StatusBadge tone={severityTone(severity)}>{severity}</StatusBadge>
+        {assignedTeam && <span className="data-text">Team {assignedTeam}</span>}
       </div>
 
       <div className="mission-card__actions">
-        <button className="mission-card__action" onClick={() => onView(mission)}>
+        <button className="mission-card__action" onClick={() => onView(incident)}>
           View
         </button>
-        {isAssigned && (
-          <button className="mission-card__action mission-card__action--primary" onClick={() => onAccept(mission)}>
-            Accept
-          </button>
-        )}
-        <a href={directionsUrl} target="_blank" rel="noreferrer" className="mission-card__action">
-          <Navigation size={13} /> Navigate
-        </a>
-        {!isAssigned && !isCompleted && (
-          <button className="mission-card__action" onClick={() => onAdvance(mission)}>
-            Update Status
-          </button>
+        <select
+          className="mission-card__action"
+          value={RESCUE_STATUS_OPTIONS.includes(status) ? status : ""}
+          disabled={updating}
+          onChange={(e) => onUpdate(id, e.target.value)}
+          style={{ cursor: "pointer" }}
+        >
+          {!RESCUE_STATUS_OPTIONS.includes(status) && (
+            <option value="" disabled>
+              {status}
+            </option>
+          )}
+          {RESCUE_STATUS_OPTIONS.map((st) => (
+            <option key={st} value={st}>
+              {st}
+            </option>
+          ))}
+        </select>
+        {hasCoords && (
+          <a href={directionsUrl} target="_blank" rel="noreferrer" className="mission-card__action">
+            <Navigation size={13} /> Navigate
+          </a>
         )}
       </div>
     </article>
   );
 }
 
-function MissionDetail({ mission, onAdvance }) {
+function IncidentMissionDetail({ incident, onUpdate, updating }) {
   const {
+    id,
     type,
     severity,
     status,
@@ -173,17 +225,19 @@ function MissionDetail({ mission, onAdvance }) {
     location,
     peopleAffected,
     reportedAt,
-    citizenName,
-    citizenPhone,
-    requiredResources,
-    nearestHospital,
-    nearestShelter,
+    reporter,
+    assignedTeam,
     latitude,
     longitude,
-  } = mission;
+    images,
+  } = incident;
 
-  const currentIndex = MISSION_STAGES.indexOf(status);
-  const isCompleted = status === "Rescue Completed";
+  const [teamInput, setTeamInput] = useState(assignedTeam || "");
+  const [statusInput, setStatusInput] = useState(
+    RESCUE_STATUS_OPTIONS.includes(status) ? status : RESCUE_STATUS_OPTIONS[0]
+  );
+  const currentIndex = INCIDENT_STAGES.indexOf(status);
+  const hasCoords = typeof latitude === "number" && typeof longitude === "number";
 
   return (
     <div className="mission-detail">
@@ -195,20 +249,39 @@ function MissionDetail({ mission, onAdvance }) {
       <h3>{type}</h3>
       <p className="mission-detail__desc">{description}</p>
 
-      <div className="mission-detail__map">
-        <MapContainer
-          center={[latitude, longitude]}
-          zoom={14}
-          scrollWheelZoom={false}
-          style={{ height: "160px", width: "100%" }}
-        >
-          <TileLayer
-            attribution='&copy; OpenStreetMap contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <Marker position={[latitude, longitude]} />
-        </MapContainer>
-      </div>
+      {images && images.length > 0 && (
+        <div className="mission-detail__section">
+          <h4>Scene Photos</h4>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            {images.map((img, idx) => (
+              <a key={idx} href={getImageUrl(img)} target="_blank" rel="noreferrer">
+                <img
+                  src={getImageUrl(img)}
+                  alt="Scene"
+                  style={{ maxHeight: "140px", borderRadius: "8px", objectFit: "cover", border: "1px solid var(--border-default, #e4e7ec)" }}
+                />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {hasCoords && (
+        <div className="mission-detail__map">
+          <MapContainer
+            center={[latitude, longitude]}
+            zoom={14}
+            scrollWheelZoom={false}
+            style={{ height: "160px", width: "100%" }}
+          >
+            <TileLayer
+              attribution='&copy; OpenStreetMap contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={[latitude, longitude]} />
+          </MapContainer>
+        </div>
+      )}
 
       <div className="mission-detail__meta">
         <span><MapPin size={14} /> {location}</span>
@@ -216,35 +289,39 @@ function MissionDetail({ mission, onAdvance }) {
         <span><Clock size={14} /> Reported {timeAgo(reportedAt)}</span>
       </div>
 
-      <div className="mission-detail__section">
-        <h4>Citizen Information</h4>
-        <div className="mission-detail__citizen">
-          <span>{citizenName}</span>
-          <a href={`tel:${citizenPhone.replace(/\s+/g, "")}`}>
-            <Phone size={13} /> {citizenPhone}
-          </a>
+      {reporter && (
+        <div className="mission-detail__section">
+          <h4>Citizen Information</h4>
+          <div className="mission-detail__citizen">
+            <span>{reporter.fullName}</span>
+            {reporter.phone && (
+              <a href={`tel:${reporter.phone.replace(/\s+/g, "")}`}>
+                <Phone size={13} /> {reporter.phone}
+              </a>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="mission-detail__section">
-        <h4><Boxes size={14} /> Required Resources</h4>
-        <ul className="mission-detail__resources">
-          {requiredResources.map((r) => (
-            <li key={r}>{r}</li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="mission-detail__section">
-        <h4>Nearby Support</h4>
-        <div className="mission-detail__support">
-          <span><Building2 size={14} /> {nearestHospital}</span>
-          <span><HomeIcon size={14} /> {nearestShelter}</span>
-        </div>
+        <h4>Assign / Update Rescue Team</h4>
+        <input
+          type="text"
+          value={teamInput}
+          onChange={(e) => setTeamInput(e.target.value)}
+          placeholder="e.g. RT-104"
+          style={{
+            width: "100%",
+            padding: "8px 12px",
+            borderRadius: "8px",
+            border: "1px solid var(--border-default, #e4e7ec)",
+            fontSize: "14px",
+          }}
+        />
       </div>
 
       <div className="mission-detail__timeline">
-        {MISSION_STAGES.map((stage, i) => (
+        {INCIDENT_STAGES.map((stage, i) => (
           <div
             key={stage}
             className={`mission-detail__step ${i <= currentIndex ? "mission-detail__step--done" : ""} ${
@@ -257,11 +334,27 @@ function MissionDetail({ mission, onAdvance }) {
         ))}
       </div>
 
-      {!isCompleted && status !== "Assigned" && (
-        <Button variant="primary" size="md" fullWidth onClick={() => onAdvance(mission)}>
-          Advance to {MISSION_STAGES[currentIndex + 1]}
+      <div className="mission-detail__section" style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <select
+          value={statusInput}
+          onChange={(e) => setStatusInput(e.target.value)}
+          style={{ flex: 1, padding: "8px 12px", borderRadius: "8px", border: "1px solid var(--border-default, #e4e7ec)" }}
+        >
+          {RESCUE_STATUS_OPTIONS.map((st) => (
+            <option key={st} value={st}>
+              {st}
+            </option>
+          ))}
+        </select>
+        <Button
+          variant="primary"
+          size="md"
+          disabled={updating}
+          onClick={() => onUpdate(id, statusInput, { assignedTeam: teamInput })}
+        >
+          {updating ? "Saving…" : "Save Changes"}
         </Button>
-      )}
+      </div>
     </div>
   );
 }

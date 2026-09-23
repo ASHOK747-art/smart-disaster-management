@@ -1,12 +1,10 @@
-import Incident, {
-  INCIDENT_TYPES,
-  SEVERITY_LEVELS,
-  INCIDENT_STATUSES
-} from "../models/Incident.js";
+import Incident, { INCIDENT_TYPES, SEVERITY_LEVELS, INCIDENT_STATUSES } from "../models/Incident.js";
+import User from "../models/User.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const REPORTER_FIELDS = "fullName email phone role";
+const RESPONDER_FIELDS = "fullName email phone role";
 
 function imagePathFor(req) {
   return req.file ? `/uploads/${req.file.filename}` : null;
@@ -83,14 +81,29 @@ export const getIncidents = asyncHandler(async (req, res) => {
 
   const incidents = await Incident.find(filter)
     .sort({ createdAt: -1 })
-    .populate("reporter", REPORTER_FIELDS);
+    .populate("reporter", REPORTER_FIELDS)
+    .populate("assignedResponder", RESPONDER_FIELDS);
+
+  res.json({ success: true, count: incidents.length, incidents });
+});
+
+// GET /api/incidents/assigned
+// A rescue user's own worklist — only incidents assigned to them. Admin can
+// also call this (rarely needed, but harmless) since it's just a filtered view.
+export const getAssignedIncidents = asyncHandler(async (req, res) => {
+  const incidents = await Incident.find({ assignedResponder: req.user._id })
+    .sort({ createdAt: -1 })
+    .populate("reporter", REPORTER_FIELDS)
+    .populate("assignedResponder", RESPONDER_FIELDS);
 
   res.json({ success: true, count: incidents.length, incidents });
 });
 
 // GET /api/incidents/:id
 export const getIncidentById = asyncHandler(async (req, res) => {
-  const incident = await Incident.findById(req.params.id).populate("reporter", REPORTER_FIELDS);
+  const incident = await Incident.findById(req.params.id)
+    .populate("reporter", REPORTER_FIELDS)
+    .populate("assignedResponder", RESPONDER_FIELDS);
   if (!incident) {
     throw new ApiError(404, "Incident not found.");
   }
@@ -129,6 +142,18 @@ export const updateIncident = asyncHandler(async (req, res) => {
     if (longitude !== undefined) incident.longitude = Number(longitude);
     if (peopleAffected !== undefined) incident.peopleAffected = Number(peopleAffected);
   } else if (isResponder) {
+    // A rescue user may only update an incident once it's been assigned to
+    // them; an unassigned incident (assignedResponder still null) stays open
+    // to any rescue user so existing/older reports aren't locked out.
+    // Admin is never restricted by assignment.
+    if (
+      req.user.role === "rescue" &&
+      incident.assignedResponder &&
+      String(incident.assignedResponder) !== String(req.user._id)
+    ) {
+      throw new ApiError(403, "This incident is assigned to a different responder.");
+    }
+
     const { type, disasterType, severity, status, location, description, peopleAffected, assignedTeam } = req.body;
     const resolvedType = disasterType || type;
     if (resolvedType !== undefined) incident.type = normalizeType(resolvedType);
@@ -155,6 +180,36 @@ export const updateIncident = asyncHandler(async (req, res) => {
 
   await incident.save();
   await incident.populate("reporter", REPORTER_FIELDS);
+  await incident.populate("assignedResponder", RESPONDER_FIELDS);
+
+  res.json({ success: true, incident });
+});
+
+// PUT /api/incidents/:id/assign
+// Admin-only: assigns a specific rescue-role user to handle this incident.
+export const assignResponder = asyncHandler(async (req, res) => {
+  const { responderId } = req.body;
+  if (!responderId) {
+    throw new ApiError(400, "responderId is required.");
+  }
+
+  const incident = await Incident.findById(req.params.id);
+  if (!incident) {
+    throw new ApiError(404, "Incident not found.");
+  }
+
+  const responder = await User.findById(responderId);
+  if (!responder) {
+    throw new ApiError(404, "Selected responder does not exist.");
+  }
+  if (responder.role !== "rescue") {
+    throw new ApiError(400, "Selected user is not a rescue responder.");
+  }
+
+  incident.assignedResponder = responder._id;
+  await incident.save();
+  await incident.populate("reporter", REPORTER_FIELDS);
+  await incident.populate("assignedResponder", RESPONDER_FIELDS);
 
   res.json({ success: true, incident });
 });

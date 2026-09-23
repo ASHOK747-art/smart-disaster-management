@@ -84,6 +84,14 @@ const incidentSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    assignedResponder: {
+      // The individual rescue-role User handling this incident. Set by an
+      // admin via the assign-responder endpoint; validated to reference a
+      // user whose role is "rescue" before it's stored.
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );

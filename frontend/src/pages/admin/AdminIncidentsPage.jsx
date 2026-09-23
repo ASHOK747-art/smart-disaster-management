@@ -14,7 +14,8 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 import EmptyState from "../../components/common/EmptyState";
 import Modal from "../../components/common/Modal";
 import Button from "../../components/common/Button";
-import { getAllIncidents, updateIncidentStatus } from "../../services/incidentService";
+import { getAllIncidents, updateIncidentStatus, assignResponder } from "../../services/incidentService";
+import { getUsersByRole } from "../../services/authService";
 import { severityTone, statusTone, shouldPulse } from "../../utils/severity";
 import { timeAgo } from "../../utils/formatTime";
 import "./AdminIncidentsPage.css";
@@ -36,9 +37,14 @@ function AdminIncidentsPage() {
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
   const [actionSuccess, setActionSuccess] = useState("");
+  const [responders, setResponders] = useState([]);
+  const [assigningId, setAssigningId] = useState(null);
 
   useEffect(() => {
     loadIncidents();
+    getUsersByRole("rescue")
+      .then(setResponders)
+      .catch((err) => console.error("Failed to load responders:", err));
   }, []);
 
   async function loadIncidents() {
@@ -68,6 +74,25 @@ function AdminIncidentsPage() {
       alert(err.response?.data?.message || "Failed to update incident status.");
     } finally {
       setUpdatingId(null);
+    }
+  }
+
+  async function handleAssign(id, responderId) {
+    if (!responderId) return;
+    try {
+      setAssigningId(id);
+      const updated = await assignResponder(id, responderId);
+      setIncidents((prev) => prev.map((inc) => (inc.id === id ? updated : inc)));
+      if (selectedIncident && selectedIncident.id === id) {
+        setSelectedIncident(updated);
+      }
+      setActionSuccess(`Incident ${id} assigned to ${updated.assignedResponder?.fullName || "responder"}`);
+      setTimeout(() => setActionSuccess(""), 4000);
+    } catch (err) {
+      console.error("Failed to assign responder:", err);
+      alert(err.response?.data?.message || "Failed to assign responder.");
+    } finally {
+      setAssigningId(null);
     }
   }
 
@@ -193,6 +218,7 @@ function AdminIncidentsPage() {
                 <th>Reported</th>
                 <th>Status</th>
                 <th>Update Status</th>
+                <th>Responder</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -239,6 +265,23 @@ function AdminIncidentsPage() {
                         {ADMIN_STATUS_OPTIONS.map((st) => (
                           <option key={st} value={st}>
                             {st}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <select
+                        className="admin-incidents__select"
+                        value={incident.assignedResponder?._id || incident.assignedResponder || ""}
+                        disabled={assigningId === incident.id}
+                        onChange={(e) => handleAssign(incident.id, e.target.value)}
+                      >
+                        <option value="" disabled>
+                          {incident.assignedResponder?.fullName || "Unassigned"}
+                        </option>
+                        {responders.map((r) => (
+                          <option key={r._id} value={r._id}>
+                            {r.fullName}
                           </option>
                         ))}
                       </select>
@@ -324,9 +367,33 @@ function AdminIncidentsPage() {
                   {selectedIncident.reporter.email || selectedIncident.reporter.phone})
                 </div>
               )}
+              <div>
+                <strong>Assigned Responder:</strong>{" "}
+                {selectedIncident.assignedResponder?.fullName || "Unassigned"}
+              </div>
             </div>
 
             <div className="admin-incident-modal__actions">
+              <label>Assign Responder:</label>
+              <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
+                <select
+                  className="admin-incidents__select"
+                  style={{ flex: 1 }}
+                  value=""
+                  disabled={assigningId === selectedIncident.id}
+                  onChange={(e) => handleAssign(selectedIncident.id, e.target.value)}
+                >
+                  <option value="" disabled>
+                    {responders.length ? "Choose a responder…" : "No rescue users found"}
+                  </option>
+                  {responders.map((r) => (
+                    <option key={r._id} value={r._id}>
+                      {r.fullName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <label>Update Status:</label>
               <div className="admin-incident-modal__status-btns">
                 {["Pending", "Verified", "In Progress", "Resolved"].map((st) => (
@@ -353,4 +420,3 @@ function AdminIncidentsPage() {
 }
 
 export default AdminIncidentsPage;
-

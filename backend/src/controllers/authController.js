@@ -72,3 +72,14 @@ export const login = asyncHandler(async (req, res) => {
 export const getMe = asyncHandler(async (req, res) => {
   res.json({ success: true, user: req.user });
 });
+
+// GET /api/auth/users?role=rescue
+// Admin-only lookup used to populate the "assign responder" picker. Reuses
+// the existing User model rather than a dedicated responders endpoint/model.
+export const listUsersByRole = asyncHandler(async (req, res) => {
+  const filter = {};
+  if (req.query.role) filter.role = req.query.role;
+
+  const users = await User.find(filter).select("fullName email phone role");
+  res.json({ success: true, count: users.length, users });
+});

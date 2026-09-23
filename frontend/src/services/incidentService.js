@@ -58,6 +58,19 @@ export async function updateIncidentStatus(id, status, extra = {}) {
   return normalizeIncident(res.data?.incident);
 }
 
+// Rescue user's own worklist — only incidents assigned to them.
+export async function getAssignedIncidents() {
+  const res = await api.get("/incidents/assigned");
+  const list = res.data?.incidents || [];
+  return list.map(normalizeIncident);
+}
+
+// Admin-only: assign a rescue-role user to handle this incident.
+export async function assignResponder(id, responderId) {
+  const res = await api.put(`/incidents/${id}/assign`, { responderId });
+  return normalizeIncident(res.data?.incident);
+}
+
 export async function getPublicIncidents() {
   const res = await api.get("/incidents/public");
   const list = res.data?.incidents || [];
