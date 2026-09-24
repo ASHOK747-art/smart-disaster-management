@@ -214,6 +214,95 @@ export const assignResponder = asyncHandler(async (req, res) => {
   res.json({ success: true, incident });
 });
 
+// GET /api/incidents/admin/stats
+// Admin-only dashboard analytics computed live from the Incident collection.
+export const getAdminStats = asyncHandler(async (_req, res) => {
+  const ACTIVE_STATUSES = INCIDENT_STATUSES.filter((s) => !["Resolved", "Rejected"].includes(s));
+
+  const [
+    totalIncidents,
+    statusCounts,
+    severityCounts,
+    typeCounts,
+    activeDisasterTypes,
+    criticalActive,
+    peopleAffectedAgg,
+    overTimeAgg,
+  ] = await Promise.all([
+    Incident.countDocuments({}),
+    Incident.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]),
+    Incident.aggregate([{ $group: { _id: "$severity", count: { $sum: 1 } } }]),
+    Incident.aggregate([{ $group: { _id: "$type", count: { $sum: 1 } } }]),
+    Incident.distinct("type", { status: { $in: ACTIVE_STATUSES } }),
+    Incident.countDocuments({
+      status: { $in: ACTIVE_STATUSES },
+      severity: { $in: ["Critical", "High"] },
+    }),
+    Incident.aggregate([
+      { $match: { status: { $in: ACTIVE_STATUSES } } },
+      { $group: { _id: null, total: { $sum: "$peopleAffected" } } },
+    ]),
+    Incident.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000) },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]),
+  ]);
+
+  const toMap = (rows) => Object.fromEntries(rows.map((r) => [r._id, r.count]));
+  const statusMap = toMap(statusCounts);
+  const severityMap = toMap(severityCounts);
+  const typeMap = toMap(typeCounts);
+
+  const byStatus = Object.fromEntries(INCIDENT_STATUSES.map((s) => [s, statusMap[s] || 0]));
+  const bySeverity = Object.fromEntries(SEVERITY_LEVELS.map((s) => [s, severityMap[s] || 0]));
+  const byType = Object.fromEntries(INCIDENT_TYPES.map((t) => [t, typeMap[t] || 0]));
+
+  const activeIncidents = ACTIVE_STATUSES.reduce((sum, s) => sum + byStatus[s], 0);
+
+  // Fill in the last 7 calendar days (including days with zero reports) so the
+  // chart always has a continuous 7-point line, in day-of-week label form.
+  const overTimeByDate = toMap(overTimeAgg.map((r) => ({ _id: r._id, count: r.count })));
+  const incidentsOverTime = [];
+  for (let i = 6; i >= 0; i -= 1) {
+    const date = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
+    const key = date.toISOString().slice(0, 10);
+    const day = date.toLocaleDateString("en-US", { weekday: "short" });
+    incidentsOverTime.push({ day, count: overTimeByDate[key] || 0 });
+  }
+
+  res.json({
+    success: true,
+    stats: {
+      totalIncidents,
+      activeIncidents,
+      activeDisasters: activeDisasterTypes.length,
+      criticalActive,
+      peopleAffected: peopleAffectedAgg[0]?.total || 0,
+      byStatus,
+      bySeverity,
+      byType,
+      incidentsOverTime,
+      disasterTypes: Object.entries(byType)
+        .filter(([, count]) => count > 0)
+        .map(([type, count]) => ({ type, count })),
+      severityDistribution: SEVERITY_LEVELS.map((severity) => ({
+        severity,
+        count: bySeverity[severity],
+      })),
+    },
+  });
+});
+
 // GET /api/incidents/public
 // Returns active/verified incidents for public consumption and GIS mapping.
 export const getPublicVerifiedIncidents = asyncHandler(async (_req, res) => {

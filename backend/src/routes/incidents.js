@@ -8,6 +8,7 @@ import {
   getPublicVerifiedIncidents,
   getAssignedIncidents,
   assignResponder,
+  getAdminStats,
 } from "../controllers/incidentController.js";
 import { authenticate, authorize } from "../middleware/auth.js";
 import { uploadIncidentImage } from "../middleware/upload.js";
@@ -22,8 +23,9 @@ router.use(authenticate);
 
 router.post("/", uploadIncidentImage, createIncident);
 router.get("/", getIncidents);
-// Placed before "/:id" so it isn't swallowed by the id route.
+// Placed before "/:id" so they aren't swallowed by the id route.
 router.get("/assigned", authorize("rescue", "admin"), getAssignedIncidents);
+router.get("/admin/stats", authorize("admin"), getAdminStats);
 router.get("/:id", getIncidentById);
 router.put("/:id/assign", authorize("admin"), assignResponder);
 router.put("/:id", uploadIncidentImage, updateIncident);

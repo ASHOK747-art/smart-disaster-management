@@ -52,16 +52,36 @@ const tooltipStyle = { borderRadius: 10, border: "1px solid #e4e7ec", fontSize: 
 
 function AdminDashboard() {
   const [data, setData] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
-    getAdminOverview().then((res) => {
-      if (!cancelled) setData(res);
-    });
+    setError("");
+    getAdminOverview()
+      .then((res) => {
+        if (!cancelled) setData(res);
+      })
+      .catch((err) => {
+        console.error("Failed to load admin analytics:", err);
+        if (!cancelled) {
+          setError(err.response?.data?.message || "Failed to load dashboard analytics.");
+        }
+      });
     return () => {
       cancelled = true;
     };
   }, []);
+
+  if (error) {
+    return (
+      <div className="admin-dashboard">
+        <div className="admin-dashboard__head">
+          <h1>District Overview</h1>
+        </div>
+        <p style={{ color: TONE_COLOR.critical }}>{error}</p>
+      </div>
+    );
+  }
 
   if (!data) return <LoadingSpinner label="Loading district analytics…" />;
 
@@ -71,7 +91,7 @@ function AdminDashboard() {
     <div className="admin-dashboard">
       <div className="admin-dashboard__head">
         <h1>District Overview</h1>
-        <p>Real-time snapshot of disasters, response resources, and impact — demo data.</p>
+        <p>Real-time snapshot of disasters, response resources, and impact.</p>
       </div>
 
       {/* ---- Main statistics ---- */}

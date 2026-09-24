@@ -71,6 +71,12 @@ export async function assignResponder(id, responderId) {
   return normalizeIncident(res.data?.incident);
 }
 
+// Admin-only dashboard analytics computed from live Incident data.
+export async function getAdminStats() {
+  const res = await api.get("/incidents/admin/stats");
+  return res.data?.stats;
+}
+
 export async function getPublicIncidents() {
   const res = await api.get("/incidents/public");
   const list = res.data?.incidents || [];
