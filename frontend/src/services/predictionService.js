@@ -1,21 +1,30 @@
-import { HAZARD_RISKS, RISK_FACTORS, RISK_TREND } from "../data/mockRiskData";
-import { RISK_SUMMARY } from "../data/mockAlerts";
+import api from "../api/axiosClient";
 
-const DELAY = 400;
-const wait = (value) => new Promise((resolve) => setTimeout(() => resolve(value), DELAY));
-
-export function getOverallRisk() {
-  return wait(RISK_SUMMARY);
+export async function getRiskPredictionData() {
+  const res = await api.get("/predictions/risk");
+  return res.data;
 }
 
-export function getHazardRisks() {
-  return wait(HAZARD_RISKS);
+export async function getOverallRisk() {
+  const data = await getRiskPredictionData();
+  if (!data.hasData) return null;
+  return data.data.overall;
 }
 
-export function getRiskFactors() {
-  return wait(RISK_FACTORS);
+export async function getHazardRisks() {
+  const data = await getRiskPredictionData();
+  if (!data.hasData) return [];
+  return data.data.hazards;
 }
 
-export function getRiskTrend() {
-  return wait(RISK_TREND);
+export async function getRiskFactors() {
+  const data = await getRiskPredictionData();
+  if (!data.hasData) return [];
+  return data.data.factors;
+}
+
+export async function getRiskTrend() {
+  const data = await getRiskPredictionData();
+  if (!data.hasData) return [];
+  return data.data.trend;
 }

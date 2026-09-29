@@ -2,6 +2,8 @@ import Incident, { INCIDENT_TYPES, SEVERITY_LEVELS, INCIDENT_STATUSES } from "..
 import User from "../models/User.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { analyzeIncidentImage } from "../services/imageAnalysis.js";
+import { uploadsDir } from "../config/paths.js";
 
 const REPORTER_FIELDS = "fullName email phone role";
 const RESPONDER_FIELDS = "fullName email phone role";
@@ -57,7 +59,24 @@ export const createIncident = asyncHandler(async (req, res) => {
   });
 
   const imagePath = imagePathFor(req);
-  if (imagePath) incident.images.push(imagePath);
+  if (imagePath) {
+    incident.images.push(imagePath);
+    try {
+      const assessment = await analyzeIncidentImage(imagePath, uploadsDir);
+      if (assessment) {
+        incident.damageAssessment = assessment;
+      }
+    } catch (err) {
+      console.error("Non-blocking AI image analysis error:", err);
+      incident.damageAssessment = {
+        category: "Analysis Unavailable",
+        severity: "Low",
+        confidence: 0,
+        factors: ["Analysis failed."],
+        analyzedAt: new Date(),
+      };
+    }
+  }
 
   await incident.save();
   await incident.populate("reporter", REPORTER_FIELDS);
@@ -176,7 +195,17 @@ export const updateIncident = asyncHandler(async (req, res) => {
   }
 
   const imagePath = imagePathFor(req);
-  if (imagePath) incident.images.push(imagePath);
+  if (imagePath) {
+    incident.images.push(imagePath);
+    try {
+      const assessment = await analyzeIncidentImage(imagePath, uploadsDir);
+      if (assessment) {
+        incident.damageAssessment = assessment;
+      }
+    } catch (err) {
+      console.error("Non-blocking AI image analysis error:", err);
+    }
+  }
 
   await incident.save();
   await incident.populate("reporter", REPORTER_FIELDS);
@@ -228,6 +257,7 @@ export const getAdminStats = asyncHandler(async (_req, res) => {
     criticalActive,
     peopleAffectedAgg,
     overTimeAgg,
+    recentIncidents,
   ] = await Promise.all([
     Incident.countDocuments({}),
     Incident.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]),
@@ -256,6 +286,11 @@ export const getAdminStats = asyncHandler(async (_req, res) => {
       },
       { $sort: { _id: 1 } },
     ]),
+    Incident.find({})
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate("reporter", REPORTER_FIELDS)
+      .populate("assignedResponder", RESPONDER_FIELDS),
   ]);
 
   const toMap = (rows) => Object.fromEntries(rows.map((r) => [r._id, r.count]));
@@ -292,8 +327,8 @@ export const getAdminStats = asyncHandler(async (_req, res) => {
       bySeverity,
       byType,
       incidentsOverTime,
+      recentIncidents,
       disasterTypes: Object.entries(byType)
-        .filter(([, count]) => count > 0)
         .map(([type, count]) => ({ type, count })),
       severityDistribution: SEVERITY_LEVELS.map((severity) => ({
         severity,

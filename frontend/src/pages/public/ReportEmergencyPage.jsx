@@ -403,8 +403,7 @@ function ReportEmergencyPage() {
             </label>
           )}
           <span className="report-field__hint">
-            Helps responders assess the situation. Automatic AI damage analysis isn't available
-            yet — this photo is stored with your report as-is.
+            Helps responders assess the situation. Automatic AI scene damage analysis will analyze your photo upon submission.
           </span>
         </div>
 

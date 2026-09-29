@@ -92,6 +92,30 @@ const incidentSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
+    damageAssessment: {
+      category: {
+        type: String,
+        enum: ["No/Minor Damage", "Moderate Damage", "Severe Damage", "Analysis Unavailable"],
+        default: null,
+      },
+      severity: {
+        type: String,
+        enum: ["Low", "Medium", "High", "Critical"],
+        default: null,
+      },
+      confidence: {
+        type: Number,
+        default: null,
+      },
+      factors: {
+        type: [String],
+        default: [],
+      },
+      analyzedAt: {
+        type: Date,
+        default: null,
+      },
+    },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );

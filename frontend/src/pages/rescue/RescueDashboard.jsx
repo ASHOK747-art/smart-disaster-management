@@ -263,6 +263,28 @@ function IncidentMissionDetail({ incident, onUpdate, updating }) {
               </a>
             ))}
           </div>
+
+          {incident.damageAssessment && (
+            <div style={{ marginTop: "12px", padding: "10px 12px", background: "var(--bg-subtle, #f9fafb)", borderRadius: "8px", border: "1px solid var(--border-default, #e4e7ec)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                <strong style={{ fontSize: "13px" }}>🤖 AI Scene Assessment</strong>
+                <StatusBadge tone={severityTone(incident.damageAssessment.severity)}>
+                  {incident.damageAssessment.category}
+                </StatusBadge>
+              </div>
+              <div style={{ fontSize: "12px", color: "var(--text-secondary)", display: "flex", gap: "12px" }}>
+                <span><strong>Confidence:</strong> {incident.damageAssessment.confidence}%</span>
+                <span><strong>Severity:</strong> {incident.damageAssessment.severity}</span>
+              </div>
+              {incident.damageAssessment.factors && incident.damageAssessment.factors.length > 0 && (
+                <ul style={{ margin: "4px 0 0 16px", padding: 0, fontSize: "11px", color: "var(--text-secondary)" }}>
+                  {incident.damageAssessment.factors.map((f, i) => (
+                    <li key={i}>{f}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
         </div>
       )}
 

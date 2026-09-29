@@ -14,7 +14,8 @@ import {
 import { MapPin, Sparkles, CloudRain, Flame, Mountain, Wind } from "lucide-react";
 import StatusBadge from "../../components/common/StatusBadge";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
-import { getOverallRisk, getHazardRisks, getRiskFactors, getRiskTrend } from "../../services/predictionService";
+import EmptyState from "../../components/common/EmptyState";
+import { getRiskPredictionData } from "../../services/predictionService";
 import { severityTone } from "../../utils/severity";
 import "./RiskPredictionPage.css";
 
@@ -36,40 +37,76 @@ const HAZARD_ICONS = {
 };
 
 function RiskPredictionPage() {
-  const [overall, setOverall] = useState(null);
-  const [hazards, setHazards] = useState([]);
-  const [factors, setFactors] = useState([]);
-  const [trend, setTrend] = useState([]);
+  const [predictionResult, setPredictionResult] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([getOverallRisk(), getHazardRisks(), getRiskFactors(), getRiskTrend()]).then(
-      ([overallRes, hazardsRes, factorsRes, trendRes]) => {
-        if (cancelled) return;
-        setOverall(overallRes);
-        setHazards(hazardsRes);
-        setFactors(factorsRes);
-        setTrend(trendRes);
-        setLoading(false);
-      }
-    );
+    getRiskPredictionData()
+      .then((res) => {
+        if (!cancelled) {
+          setPredictionResult(res);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load risk prediction:", err);
+        if (!cancelled) {
+          setError(err.response?.data?.message || "Failed to calculate risk prediction.");
+          setLoading(false);
+        }
+      });
     return () => {
       cancelled = true;
     };
   }, []);
 
-  if (loading) return <LoadingSpinner label="Running risk prediction…" />;
+  if (loading) return <LoadingSpinner label="Running predictive risk analysis…" />;
+
+  if (error) {
+    return (
+      <div className="risk-page">
+        <div className="risk-page__head">
+          <h1>AI Risk Prediction</h1>
+        </div>
+        <p style={{ color: TONE_COLOR.critical }}>{error}</p>
+      </div>
+    );
+  }
+
+  if (!predictionResult || !predictionResult.hasData) {
+    return (
+      <div className="risk-page">
+        <div className="risk-page__head">
+          <div>
+            <h1>AI Risk Prediction</h1>
+            <p>Forecasted disaster risk for your district, based on live conditions.</p>
+          </div>
+        </div>
+        <EmptyState
+          icon={Sparkles}
+          title="Insufficient Historical Data"
+          message={
+            predictionResult?.message ||
+            "No incident records exist in MongoDB yet. Submit incident reports to enable predictive risk scoring."
+          }
+        />
+      </div>
+    );
+  }
+
+  const { overall, hazards, factors, trend } = predictionResult.data;
 
   return (
     <div className="risk-page">
       <div className="risk-page__head">
         <div>
           <h1>AI Risk Prediction</h1>
-          <p>Forecasted disaster risk for your district, based on live conditions.</p>
+          <p>Forecasted disaster risk for your district, computed from live database analytics.</p>
         </div>
-        <span className="risk-page__demo-tag">
-          <Sparkles size={13} /> Demo data — not a live model yet
+        <span className="risk-page__demo-tag" style={{ borderColor: "var(--border-default)" }}>
+          <Sparkles size={13} /> Live Predictive Risk Model
         </span>
       </div>
 
@@ -81,7 +118,7 @@ function RiskPredictionPage() {
         </div>
         <div className="risk-hero__main">
           <div>
-            <span className="risk-hero__label">Overall Risk</span>
+            <span className="risk-hero__label">Overall Risk Score</span>
             <span className="risk-hero__value data-text">{overall.overallCategory.toUpperCase()}</span>
           </div>
           <span className="risk-hero__percent data-text">{overall.overallRisk}%</span>
@@ -89,6 +126,9 @@ function RiskPredictionPage() {
         <div className="risk-hero__track">
           <span className="risk-hero__fill" style={{ width: `${overall.overallRisk}%` }} />
         </div>
+        <p style={{ fontSize: "13px", color: "var(--text-secondary)", marginTop: "12px", lineHeight: "1.5" }}>
+          💡 <strong>Model Explanation:</strong> {overall.explanation}
+        </p>
       </div>
 
       <div className="risk-page__columns">
@@ -98,7 +138,7 @@ function RiskPredictionPage() {
             <h2>Risk by Hazard Type</h2>
             <div className="hazard-grid">
               {hazards.map((h) => {
-                const Icon = HAZARD_ICONS[h.type];
+                const Icon = HAZARD_ICONS[h.type] || CloudRain;
                 const tone = severityTone(h.category);
                 return (
                   <div className="hazard-card" key={h.type}>
@@ -155,7 +195,7 @@ function RiskPredictionPage() {
                   <XAxis dataKey="day" tick={{ fontSize: 12, fill: "#475467" }} axisLine={false} tickLine={false} />
                   <YAxis domain={[0, 100]} tick={{ fontSize: 12, fill: "#475467" }} axisLine={false} tickLine={false} />
                   <Tooltip
-                    formatter={(value) => [`${value}%`, "Risk"]}
+                    formatter={(value) => [`${value}%`, "Risk Score"]}
                     contentStyle={{ borderRadius: 10, border: "1px solid #e4e7ec", fontSize: 13 }}
                   />
                   <Line type="monotone" dataKey="risk" stroke="#c62f1c" strokeWidth={2.5} dot={{ r: 3 }} />

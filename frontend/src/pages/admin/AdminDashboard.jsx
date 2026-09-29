@@ -22,10 +22,19 @@ import {
   Building2,
   Home as HomeIcon,
   Users,
+  AlertTriangle,
+  Clock,
+  ShieldCheck,
+  Activity,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import StatCard from "../../components/common/StatCard";
+import StatusBadge from "../../components/common/StatusBadge";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { getAdminOverview } from "../../services/adminService";
+import { severityTone, statusTone } from "../../utils/severity";
+import { timeAgo } from "../../utils/formatTime";
 import "./AdminDashboard.css";
 
 // Keep in sync with styles/tokens.css — recharts needs literal color values,
@@ -85,7 +94,8 @@ function AdminDashboard() {
 
   if (!data) return <LoadingSpinner label="Loading district analytics…" />;
 
-  const { statistics, incidentsOverTime, disasterTypes, severityDistribution, rescueResponseTime, hospitalCapacity, shelterOccupancy } = data;
+  const { statistics, incidentsOverTime, disasterTypes, severityDistribution, recentIncidents, rescueResponseTime, hospitalCapacity, shelterOccupancy } = data;
+  const byStatus = statistics.byStatus || {};
 
   return (
     <div className="admin-dashboard">
@@ -96,8 +106,14 @@ function AdminDashboard() {
 
       {/* ---- Main statistics ---- */}
       <div className="admin-stat-grid">
-        <StatCard icon={Siren} label="Active Disasters" value={statistics.activeDisasters} tone="critical" />
-        <StatCard icon={ClipboardList} label="Active Incidents" value={statistics.activeIncidents} tone="warning" />
+        <StatCard icon={Siren} label="Total Incidents" value={statistics.totalIncidents ?? 0} tone="neutral" />
+        <StatCard icon={ClipboardList} label="Active Incidents" value={statistics.activeIncidents ?? 0} tone="warning" />
+        <StatCard icon={AlertTriangle} label="Critical / High" value={statistics.criticalActive ?? 0} tone="critical" />
+        <StatCard icon={Clock} label="Pending" value={byStatus["Pending"] ?? 0} tone="warning" />
+        <StatCard icon={ShieldCheck} label="Verified" value={byStatus["Verified"] ?? 0} tone="info" />
+        <StatCard icon={Activity} label="In Progress" value={byStatus["In Progress"] ?? 0} tone="warning" />
+        <StatCard icon={CheckCircle2} label="Resolved" value={byStatus["Resolved"] ?? 0} tone="safe" />
+        <StatCard icon={XCircle} label="Rejected" value={byStatus["Rejected"] ?? 0} tone="neutral" />
         <StatCard icon={Ambulance} label="Rescue Teams" value={statistics.rescueTeams} tone="info" />
         <StatCard icon={HeartHandshake} label="Volunteers" value={statistics.volunteers} tone="info" />
         <StatCard icon={Building2} label="Hospitals" value={statistics.hospitals} tone="safe" />
@@ -157,6 +173,41 @@ function AdminDashboard() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard title="Recent Incidents" span={2}>
+          {recentIncidents && recentIncidents.length > 0 ? (
+            <div className="admin-recent-table-wrapper">
+              <table className="admin-recent-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Location</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Reported</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentIncidents.map((inc) => (
+                    <tr key={inc.id || inc._id}>
+                      <td><strong>{inc.type}</strong></td>
+                      <td>{inc.location}</td>
+                      <td>
+                        <StatusBadge tone={severityTone(inc.severity)}>{inc.severity}</StatusBadge>
+                      </td>
+                      <td>
+                        <StatusBadge tone={statusTone(inc.status)}>{inc.status}</StatusBadge>
+                      </td>
+                      <td>{timeAgo(inc.reportedAt || inc.createdAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="admin-dashboard__empty-text">No recent incidents recorded.</p>
+          )}
         </ChartCard>
 
         <ChartCard title="Rescue Response Time (avg min)">

@@ -16,6 +16,7 @@ import Modal from "../../components/common/Modal";
 import Button from "../../components/common/Button";
 import { getAllIncidents, updateIncidentStatus, assignResponder } from "../../services/incidentService";
 import { getUsersByRole } from "../../services/authService";
+import { getRescueTeams } from "../../services/rescueTeamService";
 import { severityTone, statusTone, shouldPulse } from "../../utils/severity";
 import { timeAgo } from "../../utils/formatTime";
 import "./AdminIncidentsPage.css";
@@ -38,6 +39,7 @@ function AdminIncidentsPage() {
   const [updatingId, setUpdatingId] = useState(null);
   const [actionSuccess, setActionSuccess] = useState("");
   const [responders, setResponders] = useState([]);
+  const [rescueTeams, setRescueTeams] = useState([]);
   const [assigningId, setAssigningId] = useState(null);
 
   useEffect(() => {
@@ -45,6 +47,9 @@ function AdminIncidentsPage() {
     getUsersByRole("rescue")
       .then(setResponders)
       .catch((err) => console.error("Failed to load responders:", err));
+    getRescueTeams()
+      .then(setRescueTeams)
+      .catch((err) => console.error("Failed to load rescue teams:", err));
   }, []);
 
   async function loadIncidents() {
@@ -277,11 +282,16 @@ function AdminIncidentsPage() {
                         onChange={(e) => handleAssign(incident.id, e.target.value)}
                       >
                         <option value="" disabled>
-                          {incident.assignedResponder?.fullName || "Unassigned"}
+                          {incident.assignedResponder?.fullName || incident.assignedTeam || "Unassigned"}
                         </option>
+                        {rescueTeams.map((t) => (
+                          <option key={t.id || t._id} value={t.id || t._id}>
+                            {t.name} ({t.teamCode}) - {t.availability}
+                          </option>
+                        ))}
                         {responders.map((r) => (
                           <option key={r._id} value={r._id}>
-                            {r.fullName}
+                            User: {r.fullName}
                           </option>
                         ))}
                       </select>
@@ -342,6 +352,35 @@ function AdminIncidentsPage() {
                     </a>
                   ))}
                 </div>
+
+                {selectedIncident.damageAssessment ? (
+                  <div style={{ marginTop: "14px", padding: "12px", background: "var(--bg-subtle, #f9fafb)", borderRadius: "8px", border: "1px solid var(--border-default, #e4e7ec)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                      <strong style={{ fontSize: "14px" }}>🤖 AI Scene Damage Assessment</strong>
+                      <StatusBadge tone={severityTone(selectedIncident.damageAssessment.severity)}>
+                        {selectedIncident.damageAssessment.category || "Analyzed"}
+                      </StatusBadge>
+                    </div>
+                    <div style={{ fontSize: "13px", color: "var(--text-secondary)", display: "flex", gap: "16px", marginBottom: "6px" }}>
+                      <span><strong>Confidence:</strong> {selectedIncident.damageAssessment.confidence ?? 80}%</span>
+                      <span><strong>Severity:</strong> {selectedIncident.damageAssessment.severity}</span>
+                      {selectedIncident.damageAssessment.analyzedAt && (
+                        <span><strong>Analyzed:</strong> {new Date(selectedIncident.damageAssessment.analyzedAt).toLocaleTimeString()}</span>
+                      )}
+                    </div>
+                    {selectedIncident.damageAssessment.factors && selectedIncident.damageAssessment.factors.length > 0 && (
+                      <ul style={{ margin: "6px 0 0 18px", padding: 0, fontSize: "12px", color: "var(--text-secondary)" }}>
+                        {selectedIncident.damageAssessment.factors.map((f, i) => (
+                          <li key={i}>{f}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ marginTop: "12px", fontSize: "13px", color: "var(--text-secondary)" }}>
+                    🤖 <em>AI Damage Assessment: Analysis pending / unavailable for this photo.</em>
+                  </div>
+                )}
               </div>
             )}
 
@@ -384,11 +423,16 @@ function AdminIncidentsPage() {
                   onChange={(e) => handleAssign(selectedIncident.id, e.target.value)}
                 >
                   <option value="" disabled>
-                    {responders.length ? "Choose a responder…" : "No rescue users found"}
+                    {rescueTeams.length || responders.length ? "Choose a team or responder…" : "No rescue resources found"}
                   </option>
+                  {rescueTeams.map((t) => (
+                    <option key={t.id || t._id} value={t.id || t._id}>
+                      {t.name} ({t.teamCode}) - {t.availability}
+                    </option>
+                  ))}
                   {responders.map((r) => (
                     <option key={r._id} value={r._id}>
-                      {r.fullName}
+                      User: {r.fullName}
                     </option>
                   ))}
                 </select>

@@ -14,8 +14,11 @@ export async function getAdminOverview() {
 
   return {
     statistics: {
+      totalIncidents: stats.totalIncidents,
       activeDisasters: stats.activeDisasters,
       activeIncidents: stats.activeIncidents,
+      criticalActive: stats.criticalActive,
+      byStatus: stats.byStatus,
       rescueTeams: ADMIN_STATISTICS.rescueTeams,
       volunteers: ADMIN_STATISTICS.volunteers,
       hospitals: MOCK_HOSPITALS.length,
@@ -25,6 +28,7 @@ export async function getAdminOverview() {
     incidentsOverTime: stats.incidentsOverTime,
     disasterTypes: stats.disasterTypes,
     severityDistribution: stats.severityDistribution,
+    recentIncidents: stats.recentIncidents || [],
     rescueResponseTime: RESCUE_RESPONSE_TIME,
     hospitalCapacity: MOCK_HOSPITALS.map((h) => ({ name: h.name.split(" ").slice(0, 2).join(" "), availableBeds: h.availableBeds })),
     shelterOccupancy: MOCK_SHELTERS.map((s) => ({

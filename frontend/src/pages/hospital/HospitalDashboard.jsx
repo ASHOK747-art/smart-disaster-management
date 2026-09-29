@@ -10,6 +10,7 @@ import {
   Clock,
   MapPin,
   Stethoscope,
+  Building2,
 } from "lucide-react";
 import StatCard from "../../components/common/StatCard";
 import StatusBadge from "../../components/common/StatusBadge";
@@ -49,18 +50,21 @@ function HospitalDashboard() {
   }, []);
 
   if (loading) return <LoadingSpinner label="Loading hospital dashboard…" />;
+  if (!profile) return <EmptyState icon={Building2} title="No hospital profile found" message="No hospital information is available." />;
 
   async function setStatus(status) {
-    const updated = await updateHospitalProfile({ status });
+    const updated = await updateHospitalProfile(profile.id, { status });
     setProfile(updated);
   }
 
-  function adjustBeds(field, delta) {
-    updateHospitalProfile({ [field]: Math.max(0, profile[field] + delta) }).then(setProfile);
+  async function adjustBeds(field, delta) {
+    const updated = await updateHospitalProfile(profile.id, { [field]: Math.max(0, profile[field] + delta) });
+    setProfile(updated);
   }
 
-  function adjustResource(id, delta) {
-    updateResourceQuantity(id, delta).then(setResources);
+  async function adjustResource(id, delta) {
+    const updatedResources = await updateResourceQuantity(profile.id, resources, id, delta);
+    setResources(updatedResources);
   }
 
   async function handleRespond(id, status) {

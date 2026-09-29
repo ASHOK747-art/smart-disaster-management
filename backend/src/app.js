@@ -4,6 +4,10 @@ import morgan from "morgan";
 
 import authRoutes from "./routes/auth.js";
 import incidentRoutes from "./routes/incidents.js";
+import hospitalRoutes from "./routes/hospitals.js";
+import shelterRoutes from "./routes/shelters.js";
+import rescueTeamRoutes from "./routes/rescueTeams.js";
+import predictionRoutes from "./routes/predictions.js";
 import { notFoundHandler, errorHandler } from "./middleware/errorHandler.js";
 import { uploadsDir } from "./config/paths.js";
 
@@ -32,6 +36,10 @@ app.get("/api/health", (_req, res) => {
 // --- Feature routes ---
 app.use("/api/auth", authRoutes);
 app.use("/api/incidents", incidentRoutes);
+app.use("/api/hospitals", hospitalRoutes);
+app.use("/api/shelters", shelterRoutes);
+app.use("/api/rescue-teams", rescueTeamRoutes);
+app.use("/api/predictions", predictionRoutes);
 // Future phases mount here as they're built:
 // app.use("/api/rescue", rescueRoutes);
 // app.use("/api/hospitals", hospitalRoutes);
