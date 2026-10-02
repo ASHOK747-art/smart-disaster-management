@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+# ML raw datasets
+ml/data/raw/*.csv
+ml/data/raw/*.xlsx
+ml/data/raw/*.xls
+ml/data/raw/*.parquet
+
+# Large ML model files
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+*.pt
+*.pth
+*.onnx
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+*.pt
+*.pth
+*.onnx
+
+# Logs
+*.log
+
+# Build files
+frontend/dist/
+backend/dist/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/ml/data/raw/*.GeoJSON
+ml/data/raw/*.geojson
+ml/data/raw/*.GeoJSON
+ml/data/raw/*.geojson
+ml/data/raw/*.GeoJSON
+ml/data/raw/*.geojson
