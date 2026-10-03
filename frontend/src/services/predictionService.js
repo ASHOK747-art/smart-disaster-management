@@ -28,3 +28,8 @@ export async function getRiskTrend() {
   if (!data.hasData) return [];
   return data.data.trend;
 }
+
+export async function predictDistrictRisk(district) {
+  const res = await api.post("/predictions/district", { district });
+  return res.data;
+}

@@ -294,17 +294,10 @@ export const predictDistrictRisk = asyncHandler(
       });
     }
 
-    const pythonProcess = spawn(
-      "python",
-      [
-        "ml/predict.py",
-        district.trim(),
-      ],
-      {
-        cwd: process.cwd(),
-        windowsHide: true,
-      }
-    );
+    const pythonProcess = spawn("python", ["../ml/predict.py", district.trim()], {
+  cwd: process.cwd(),
+  windowsHide: true,
+});
 
     let output = "";
     let errorOutput = "";

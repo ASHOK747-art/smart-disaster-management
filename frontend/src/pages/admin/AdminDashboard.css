@@ -79,18 +79,221 @@
   margin-top: var(--sp-2);
 }
 
+/* ---- District Flood Risk Prediction ---- */
+.district-prediction-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.district-prediction-form {
+  display: flex;
+  gap: var(--sp-3);
+}
+
+.district-prediction-input-group {
+  display: flex;
+  gap: var(--sp-3);
+  width: 100%;
+  max-width: 500px;
+}
+
+.district-prediction-input {
+  flex: 1;
+  padding: var(--sp-2) var(--sp-3);
+  font-size: var(--fs-sm);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.district-prediction-input:focus {
+  border-color: var(--brand-primary, #2f6690);
+}
+
+.district-prediction-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: #ffffff;
+  background-color: var(--brand-primary, #2f6690);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.district-prediction-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.district-prediction-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.district-prediction-error {
+  padding: var(--sp-3);
+  font-size: var(--fs-sm);
+  color: #e4402c;
+  background-color: rgba(228, 64, 44, 0.08);
+  border: 1px solid rgba(228, 64, 44, 0.2);
+  border-radius: var(--radius-md);
+}
+
+.district-prediction-placeholder {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: var(--bg-subtle, #f9fafb);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+}
+
+.district-prediction-placeholder-icon {
+  color: var(--brand-primary, #2f6690);
+  flex-shrink: 0;
+}
+
+.district-prediction-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding-top: var(--sp-2);
+}
+
+.district-prediction-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.district-prediction-meta h4 {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.district-prediction-state {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.district-prediction-badge-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.district-prediction-label {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+.district-prediction-probabilities h5,
+.district-prediction-features h5 {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+  margin-bottom: var(--sp-3);
+}
+
+.district-prob-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-3);
+}
+
+.district-prob-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1.5);
+  background: var(--bg-subtle, #f9fafb);
+  padding: var(--sp-2.5) var(--sp-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+}
+
+.district-prob-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-xs);
+  color: var(--text-primary);
+}
+
+.district-prob-track {
+  height: 6px;
+  background: var(--border-default);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.district-prob-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.district-features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-3);
+}
+
+.district-feature-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--bg-subtle, #f9fafb);
+  padding: var(--sp-2.5) var(--sp-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+}
+
+.district-feature-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.district-feature-value {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 1400px) {
   .admin-stat-grid { grid-template-columns: repeat(4, 1fr); }
+  .district-features-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 1200px) {
   .admin-chart-grid { grid-template-columns: repeat(2, 1fr); }
   .chart-card[style*="span 2"] { grid-column: span 2 !important; }
+  .district-features-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 860px) {
   .admin-stat-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-chart-grid { grid-template-columns: 1fr; }
   .chart-card[style*="span 2"] { grid-column: span 1 !important; }
+  .district-prob-grid { grid-template-columns: 1fr; }
+  .district-features-grid { grid-template-columns: 1fr; }
 }

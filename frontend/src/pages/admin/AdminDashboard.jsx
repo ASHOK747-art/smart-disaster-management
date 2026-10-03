@@ -28,11 +28,14 @@ import {
   Activity,
   CheckCircle2,
   XCircle,
+  BrainCircuit,
+  Search,
 } from "lucide-react";
 import StatCard from "../../components/common/StatCard";
 import StatusBadge from "../../components/common/StatusBadge";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { getAdminOverview } from "../../services/adminService";
+import { predictDistrictRisk } from "../../services/predictionService";
 import { severityTone, statusTone } from "../../utils/severity";
 import { timeAgo } from "../../utils/formatTime";
 import "./AdminDashboard.css";
@@ -175,6 +178,10 @@ function AdminDashboard() {
           </ResponsiveContainer>
         </ChartCard>
 
+        <ChartCard title="ML District Flood Risk Prediction" span={2}>
+          <DistrictPredictionSection />
+        </ChartCard>
+
         <ChartCard title="Recent Incidents" span={2}>
           {recentIncidents && recentIncidents.length > 0 ? (
             <div className="admin-recent-table-wrapper">
@@ -259,6 +266,159 @@ function ChartCard({ title, span = 1, children }) {
     <div className="chart-card" style={{ gridColumn: `span ${span}` }}>
       <h3>{title}</h3>
       {children}
+    </div>
+  );
+}
+
+function DistrictPredictionSection() {
+  const [district, setDistrict] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [result, setResult] = useState(null);
+
+  const handleAnalyze = async (e) => {
+    e?.preventDefault();
+    const trimmed = district.trim();
+    if (!trimmed) {
+      setError("Please enter or select a district name.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await predictDistrictRisk(trimmed);
+      if (res && res.success) {
+        setResult(res);
+      } else {
+        setError(res?.message || "Failed to analyze district flood risk.");
+      }
+    } catch (err) {
+      console.error("District prediction error:", err);
+      setError(err.response?.data?.message || "District analysis request failed. Please check the district name and network connection.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const riskToneMap = {
+    High: "critical",
+    Medium: "warning",
+    Low: "safe",
+  };
+
+  return (
+    <div className="district-prediction-section">
+      <form className="district-prediction-form" onSubmit={handleAnalyze}>
+        <div className="district-prediction-input-group">
+          <input
+            type="text"
+            className="district-prediction-input"
+            placeholder="Enter district name (e.g. Kota)"
+            value={district}
+            onChange={(e) => {
+              setDistrict(e.target.value);
+              if (error) setError("");
+            }}
+            disabled={loading}
+          />
+          <button
+            type="submit"
+            className="district-prediction-btn"
+            disabled={loading || !district.trim()}
+          >
+            <Search size={15} />
+            {loading ? "Analyzing..." : "Analyze District Risk"}
+          </button>
+        </div>
+      </form>
+
+      {error && <div className="district-prediction-error">{error}</div>}
+
+      {!result && !error && !loading && (
+        <div className="district-prediction-placeholder">
+          <BrainCircuit size={28} className="district-prediction-placeholder-icon" />
+          <p>Select or enter a district above and click <strong>Analyze District Risk</strong> to run ML prediction.</p>
+        </div>
+      )}
+
+      {result && (
+        <div className="district-prediction-results">
+          <div className="district-prediction-header">
+            <div className="district-prediction-meta">
+              <h4>{result.district}</h4>
+              {result.state && <span className="district-prediction-state">{result.state}</span>}
+            </div>
+            <div className="district-prediction-badge-wrapper">
+              <span className="district-prediction-label">Risk Level:</span>
+              <StatusBadge tone={riskToneMap[result.riskLevel] || "info"}>
+                {result.riskLevel?.toUpperCase()}
+              </StatusBadge>
+            </div>
+          </div>
+
+          {result.probabilities && (
+            <div className="district-prediction-probabilities">
+              <h5>Probability Breakdown</h5>
+              <div className="district-prob-grid">
+                <ProbabilityBar label="High Risk" percentage={result.probabilities.High} tone="critical" />
+                <ProbabilityBar label="Medium Risk" percentage={result.probabilities.Medium} tone="warning" />
+                <ProbabilityBar label="Low Risk" percentage={result.probabilities.Low} tone="safe" />
+              </div>
+            </div>
+          )}
+
+          {result.features && (
+            <div className="district-prediction-features">
+              <h5>Model Feature Breakdown</h5>
+              <div className="district-features-grid">
+                <FeatureCard label="Percent Flooded Area" value={`${Number(result.features.percentFloodedArea ?? 0).toFixed(2)}%`} />
+                <FeatureCard label="Permanent Water" value={`${Number(result.features.permanentWater ?? 0).toFixed(2)}%`} />
+                <FeatureCard label="Corrected Flooded Area" value={`${Number(result.features.correctedFloodedArea ?? 0).toFixed(2)}%`} />
+                <FeatureCard label="Population Impacted" value={Number(result.features.population ?? 0).toLocaleString()} />
+                <FeatureCard label="Mean Flood Duration" value={`${Number(result.features.meanFloodDuration ?? 0).toFixed(1)} days`} />
+                <FeatureCard label="Historical Flood Count" value={Number(result.features.historicalFloodCount ?? 0).toLocaleString()} />
+                <FeatureCard label="Historical Avg Duration" value={`${Number(result.features.historicalAverageDuration ?? 0).toFixed(1)} days`} />
+                <FeatureCard label="Historical Total Duration" value={`${Number(result.features.historicalTotalDuration ?? 0).toLocaleString()} days`} />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProbabilityBar({ label, percentage = 0, tone }) {
+  const val = Number(percentage ?? 0).toFixed(2);
+  const colorMap = {
+    critical: "#e4402c",
+    warning: "#f0a202",
+    safe: "#1e9e6b",
+  };
+
+  return (
+    <div className="district-prob-item">
+      <div className="district-prob-head">
+        <span>{label}</span>
+        <strong className="data-text">{val}%</strong>
+      </div>
+      <div className="district-prob-track">
+        <div
+          className="district-prob-fill"
+          style={{ width: `${Math.min(100, Math.max(0, percentage))}%`, backgroundColor: colorMap[tone] || "#2f6690" }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function FeatureCard({ label, value }) {
+  return (
+    <div className="district-feature-item">
+      <span className="district-feature-label">{label}</span>
+      <span className="district-feature-value data-text">{value}</span>
     </div>
   );
 }
