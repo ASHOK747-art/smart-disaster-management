@@ -293,64 +293,104 @@ export const predictDistrictRisk = asyncHandler(
   async (req, res) => {
     const { district } = req.body;
 
-    if (!district || typeof district !== "string") {
+    if (!district || typeof district !== "string" || !district.trim()) {
       return res.status(400).json({
         success: false,
         message: "District name is required.",
       });
     }
 
-    const pythonProcess = spawn("python", ["../ml/predict.py", district.trim()], {
-  cwd: process.cwd(),
-  windowsHide: true,
-});
+    // Absolute path resolution for ml/predict.py regardless of working directory
+    const primaryScriptPath = path.resolve(__dirname, "../../ml/predict.py");
+    const secondaryScriptPath = path.resolve(__dirname, "../../../ml/predict.py");
+    const fallbackScriptPath = path.resolve(process.cwd(), "ml/predict.py");
 
-    let output = "";
-    let errorOutput = "";
+    const actualScriptPath = fs.existsSync(primaryScriptPath)
+      ? primaryScriptPath
+      : fs.existsSync(secondaryScriptPath)
+      ? secondaryScriptPath
+      : fs.existsSync(fallbackScriptPath)
+      ? fallbackScriptPath
+      : path.resolve(process.cwd(), "../ml/predict.py");
 
-    pythonProcess.stdout.on("data", (data) => {
-      output += data.toString();
-    });
+    // Determine Python executable (environment variable or OS default)
+    const pythonCmd = process.env.PYTHON_PATH || (process.platform === "win32" ? "python" : "python3");
 
-    pythonProcess.stderr.on("data", (data) => {
-      errorOutput += data.toString();
-    });
+    const runPythonProcess = (cmd) => {
+      return new Promise((resolve) => {
+        let output = "";
+        let errorOutput = "";
 
-    pythonProcess.on("error", (error) => {
+        const child = spawn(cmd, [actualScriptPath, district.trim()], {
+          cwd: path.dirname(actualScriptPath),
+          windowsHide: true,
+        });
+
+        child.stdout.on("data", (data) => {
+          output += data.toString();
+        });
+
+        child.stderr.on("data", (data) => {
+          errorOutput += data.toString();
+        });
+
+        child.on("error", (err) => {
+          resolve({ spawnError: err, output, errorOutput });
+        });
+
+        child.on("close", (code) => {
+          resolve({ code, output, errorOutput });
+        });
+      });
+    };
+
+    let result = await runPythonProcess(pythonCmd);
+
+    // Fallback attempt if pythonCmd failed to spawn on Linux/Render
+    if (result.spawnError && !process.env.PYTHON_PATH) {
+      const alternateCmd = pythonCmd === "python3" ? "python" : "python3";
+      result = await runPythonProcess(alternateCmd);
+    }
+
+    if (result.spawnError) {
       return res.status(500).json({
         success: false,
-        message:
-          "Unable to start the Python prediction process.",
-        error: error.message,
+        message: "Unable to start the Python prediction process.",
+        error: result.spawnError.message,
       });
-    });
+    }
 
-    pythonProcess.on("close", (code) => {
-      if (code !== 0) {
-        return res.status(500).json({
-          success: false,
-          message: "ML prediction failed.",
-          error: errorOutput.trim(),
-        });
+    const { code, output, errorOutput } = result;
+
+    let parsedResult = null;
+    try {
+      if (output.trim()) {
+        parsedResult = JSON.parse(output.trim());
       }
+    } catch (error) {
+      // JSON parse failed
+    }
 
-      try {
-        const result = JSON.parse(output.trim());
-
-        if (!result.success) {
-          return res.status(404).json(result);
-        }
-
-        return res.json(result);
-      } catch (error) {
-        return res.status(500).json({
-          success: false,
-          message:
-            "Invalid response received from the ML model.",
-          error: error.message,
-          rawOutput: output,
-        });
+    if (parsedResult) {
+      if (!parsedResult.success) {
+        return res.status(404).json(parsedResult);
       }
+      return res.json(parsedResult);
+    }
+
+    if (code !== 0) {
+      return res.status(500).json({
+        success: false,
+        message: "ML prediction failed.",
+        error: errorOutput.trim() || output.trim() || `Process exited with code ${code}`,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Invalid response received from the ML model.",
+      error: errorOutput.trim(),
+      rawOutput: output,
     });
   }
 );
