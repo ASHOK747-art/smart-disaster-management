@@ -83,3 +83,34 @@ export const listUsersByRole = asyncHandler(async (req, res) => {
   const users = await User.find(filter).select("fullName email phone role");
   res.json({ success: true, count: users.length, users });
 });
+
+// PUT /api/auth/change-password
+export const changePassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    throw new ApiError(400, "Current password and new password are required.");
+  }
+
+  if (newPassword.length < 6) {
+    throw new ApiError(400, "New password must be at least 6 characters long.");
+  }
+
+  const user = await User.findById(req.user._id).select("+passwordHash");
+  if (!user) {
+    throw new ApiError(404, "User account not found.");
+  }
+
+  const isMatch = await user.comparePassword(currentPassword);
+  if (!isMatch) {
+    throw new ApiError(401, "Current password is incorrect.");
+  }
+
+  await user.setPassword(newPassword);
+  await user.save();
+
+  res.json({
+    success: true,
+    message: "Password updated successfully.",
+  });
+});

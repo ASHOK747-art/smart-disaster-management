@@ -35,6 +35,286 @@
   white-space: nowrap;
 }
 
+/* ---- Citizen District Predictor Section ---- */
+
+.citizen-district-section {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.04);
+}
+
+.citizen-district-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.citizen-district-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.citizen-district-title h2 {
+  font-size: var(--fs-md, 16px);
+  font-weight: 700;
+  color: var(--text-primary, #101828);
+  margin: 0;
+}
+
+.citizen-district-header p {
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-secondary, #475467);
+  margin: 0;
+}
+
+.citizen-district-form {
+  display: flex;
+  gap: var(--sp-3, 12px);
+  flex-wrap: wrap;
+}
+
+.citizen-district-input-wrap {
+  flex: 1;
+  min-width: 240px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.citizen-district-search-icon {
+  position: absolute;
+  left: 12px;
+  color: #667085;
+  pointer-events: none;
+}
+
+.citizen-district-input {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default, #d0d5dd);
+  background: var(--bg-primary, #ffffff);
+  font-size: var(--fs-sm, 13px);
+  color: var(--text-primary, #101828);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.citizen-district-input:focus {
+  border-color: #1c3b6b;
+  box-shadow: 0 0 0 3px rgba(28, 59, 107, 0.1);
+}
+
+.citizen-district-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: var(--navy-900, #1c3b6b);
+  color: #ffffff;
+  font-size: var(--fs-sm, 13px);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.citizen-district-btn:hover:not(:disabled) {
+  background: #11284a;
+}
+
+.citizen-district-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Quick District Chips */
+.citizen-district-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.citizen-chips-label {
+  color: var(--text-tertiary, #667085);
+  font-weight: 500;
+}
+
+.citizen-chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-default, #eaecf0);
+  background: var(--slate-100, #f2f4f7);
+  color: var(--text-secondary, #344054);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.citizen-chip:hover:not(:disabled) {
+  background: #1c3b6b;
+  color: #ffffff;
+  border-color: #1c3b6b;
+}
+
+.citizen-district-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #fef3f2;
+  border: 1px solid #fee4e2;
+  color: #b42318;
+  font-size: 13px;
+}
+
+/* Result Card */
+.citizen-district-result-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 4px;
+}
+
+.citizen-result-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.citizen-result-district {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.citizen-result-state {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.05em;
+}
+
+.citizen-result-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.citizen-badge-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* Probability Bars */
+.citizen-result-probabilities h4,
+.citizen-result-features h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.citizen-prob-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.citizen-prob-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #ffffff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.citizen-prob-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #475569;
+}
+
+.citizen-prob-track {
+  height: 6px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.citizen-prob-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+/* Feature Grid */
+.citizen-features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.citizen-feature-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #ffffff;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.citizen-feature-label {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.citizen-feature-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
 /* ---- Overall risk hero ---- */
 
 .risk-hero {
@@ -232,10 +512,16 @@
   .risk-page__columns {
     grid-template-columns: 1fr;
   }
+  .citizen-prob-grid,
+  .citizen-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 640px) {
-  .hazard-grid {
+  .hazard-grid,
+  .citizen-prob-grid,
+  .citizen-features-grid {
     grid-template-columns: 1fr;
   }
 }

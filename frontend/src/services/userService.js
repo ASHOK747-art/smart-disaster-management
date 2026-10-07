@@ -1,17 +1,44 @@
+import api from "../api/axiosClient";
 import { MOCK_PROFILE } from "../data/mockUser";
 
-const DELAY = 400;
-const wait = (value) => new Promise((resolve) => setTimeout(() => resolve(value), DELAY));
+function normalizeUser(u) {
+  if (!u) return u;
+  return {
+    ...u,
+    id: u.id || u._id,
+  };
+}
 
-// Held in module scope so edits persist for the rest of the session (mock only —
-// resets on page reload since there's no backend yet).
+// User Profile methods
 let currentProfile = { ...MOCK_PROFILE };
 
 export function getProfile() {
-  return wait({ ...currentProfile });
+  return Promise.resolve({ ...currentProfile });
 }
 
 export function updateProfile(updates) {
   currentProfile = { ...currentProfile, ...updates };
-  return wait({ ...currentProfile });
+  return Promise.resolve({ ...currentProfile });
+}
+
+// Admin User Management API methods
+export async function getUsers() {
+  const res = await api.get("/users");
+  const list = res.data?.users || [];
+  return list.map(normalizeUser);
+}
+
+export async function getUserById(id) {
+  const res = await api.get(`/users/${id}`);
+  return normalizeUser(res.data?.user);
+}
+
+export async function updateUser(id, updates) {
+  const res = await api.put(`/users/${id}`, updates);
+  return normalizeUser(res.data?.user);
+}
+
+export async function deleteUser(id) {
+  const res = await api.delete(`/users/${id}`);
+  return res.data;
 }

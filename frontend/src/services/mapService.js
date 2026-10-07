@@ -2,6 +2,7 @@ import { getPublicIncidents } from "./incidentService";
 import { getNearbyHospitals } from "./hospitalService";
 import { getNearbyShelters } from "./shelterService";
 import { getRescueTeams } from "./rescueTeamService";
+import { getDistrictFloodRisks } from "./predictionService";
 import { MOCK_INCIDENTS } from "../data/mockIncidents";
 import { MOCK_HOSPITALS } from "../data/mockHospitals";
 import { MOCK_SHELTERS } from "../data/mockShelters";
@@ -12,6 +13,7 @@ export async function getMapData() {
   let liveHospitals = [];
   let liveShelters = [];
   let liveRescueTeams = [];
+  let liveFloodRisks = [];
 
   try {
     liveIncidents = await getPublicIncidents();
@@ -37,6 +39,15 @@ export async function getMapData() {
     console.warn("Could not fetch live rescue teams from backend, using fallback:", err);
   }
 
+  try {
+    const riskRes = await getDistrictFloodRisks();
+    if (riskRes && riskRes.districts) {
+      liveFloodRisks = riskRes.districts;
+    }
+  } catch (err) {
+    console.warn("Could not fetch district flood risks from backend:", err);
+  }
+
   const validLiveIncidents = liveIncidents.filter(
     (i) =>
       typeof i.latitude === "number" &&
@@ -56,5 +67,6 @@ export async function getMapData() {
     shelters,
     rescueTeams,
     volunteers: MOCK_VOLUNTEERS,
+    floodRisks: liveFloodRisks,
   };
 }

@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   getRiskPrediction,
   predictDistrictRisk,
+  getDistrictFloodRisks,
 } from "../controllers/predictionController.js";
 import { authenticate } from "../middleware/auth.js";
 
@@ -13,6 +14,9 @@ router.get(
   authenticate,
   getRiskPrediction
 );
+
+// District-level flood risk list for map visualization
+router.get("/districts", getDistrictFloodRisks);
 
 // Actual trained ML model prediction
 router.post(

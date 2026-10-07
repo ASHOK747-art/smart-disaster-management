@@ -33,3 +33,8 @@ export async function predictDistrictRisk(district) {
   const res = await api.post("/predictions/district", { district });
   return res.data;
 }
+
+export async function getDistrictFloodRisks() {
+  const res = await api.get("/predictions/districts");
+  return res.data;
+}

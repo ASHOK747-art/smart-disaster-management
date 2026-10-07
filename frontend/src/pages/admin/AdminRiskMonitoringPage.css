@@ -1,0 +1,422 @@
+.risk-monitoring-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5, 20px);
+}
+
+.risk-monitoring-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--sp-3, 12px);
+}
+
+.risk-monitoring-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3, 12px);
+  margin-bottom: var(--sp-1, 4px);
+}
+
+.risk-monitoring-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3, 12px);
+}
+
+.risk-last-updated {
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-secondary, #667085);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Error Box */
+.risk-monitoring-error-box {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3, 12px);
+  padding: var(--sp-4, 16px);
+  background-color: #fef3f2;
+  border: 1px solid #fee4e2;
+  border-radius: var(--radius-lg, 8px);
+  color: #b42318;
+}
+
+.risk-monitoring-error-content {
+  flex: 1;
+}
+
+.risk-monitoring-error-content strong {
+  display: block;
+  font-size: var(--fs-sm, 14px);
+  margin-bottom: 2px;
+}
+
+.risk-monitoring-error-content p {
+  font-size: var(--fs-xs, 12px);
+  margin: 0;
+  color: #b42318;
+}
+
+/* No Data Card */
+.risk-monitoring-nodata-card {
+  background: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-default, #eaecf0);
+  border-radius: var(--radius-lg, 8px);
+  padding: var(--sp-6, 24px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3, 12px);
+}
+
+.risk-monitoring-nodata-detail {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2, 8px);
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-secondary, #667085);
+  background: var(--bg-subtle, #f9fafb);
+  padding: var(--sp-2, 8px) var(--sp-3, 12px);
+  border-radius: var(--radius-md, 6px);
+}
+
+/* Overall Featured Risk Card */
+.risk-overall-card {
+  background: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-default, #eaecf0);
+  border-radius: var(--radius-lg, 8px);
+  padding: var(--sp-5, 20px);
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.05);
+}
+
+.risk-overall-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--sp-4, 16px);
+  padding-bottom: var(--sp-3, 12px);
+  border-bottom: 1px solid var(--border-default, #eaecf0);
+}
+
+.risk-overall-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2, 8px);
+  font-weight: 700;
+  font-size: var(--fs-md, 16px);
+  color: var(--text-primary, #101828);
+}
+
+.risk-overall-body {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--sp-5, 20px);
+  align-items: center;
+}
+
+.risk-overall-score-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2, 8px);
+}
+
+.risk-overall-score-display {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.risk-overall-number {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.risk-overall-denom {
+  font-size: var(--fs-md, 16px);
+  color: var(--text-secondary, #667085);
+  font-weight: 600;
+}
+
+.risk-overall-gauge-track {
+  height: 10px;
+  background: var(--border-default, #eaecf0);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.risk-overall-gauge-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.6s ease-in-out;
+}
+
+.risk-overall-explanation h4 {
+  font-size: var(--fs-xs, 12px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary, #667085);
+  margin: 0 0 6px 0;
+}
+
+.risk-overall-explanation p {
+  font-size: var(--fs-sm, 14px);
+  color: var(--text-primary, #101828);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Grid for Hazard & Factors */
+.risk-sections-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-5, 20px);
+}
+
+.risk-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4, 16px);
+}
+
+.risk-card-title-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2, 8px);
+}
+
+.risk-card-icon {
+  color: var(--brand-primary, #2f6690);
+  flex-shrink: 0;
+}
+
+.risk-card-title-bar h3 {
+  font-size: var(--fs-sm, 14px);
+  font-weight: 600;
+  color: var(--text-primary, #101828);
+  margin: 0;
+}
+
+.risk-card-subtitle {
+  display: block;
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-secondary, #667085);
+  margin-top: 2px;
+}
+
+/* Hazards list */
+.risk-hazards-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3, 12px);
+}
+
+.risk-hazard-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--bg-subtle, #f9fafb);
+  border: 1px solid var(--border-default, #eaecf0);
+  border-radius: var(--radius-md, 6px);
+  padding: var(--sp-3, 12px);
+}
+
+.risk-hazard-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.risk-hazard-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2, 8px);
+}
+
+.risk-hazard-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.risk-hazard-name {
+  font-weight: 600;
+  font-size: var(--fs-sm, 14px);
+  color: var(--text-primary, #101828);
+}
+
+.risk-hazard-score-info {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3, 12px);
+}
+
+.risk-hazard-count {
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-secondary, #667085);
+}
+
+.risk-hazard-score {
+  font-size: var(--fs-sm, 14px);
+}
+
+/* Progress track */
+.risk-progress-track {
+  height: 6px;
+  background: var(--border-default, #eaecf0);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.risk-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease-in-out;
+}
+
+/* Factors list */
+.risk-factors-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3, 12px);
+}
+
+.risk-factor-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--bg-subtle, #f9fafb);
+  border: 1px solid var(--border-default, #eaecf0);
+  border-radius: var(--radius-md, 6px);
+  padding: var(--sp-3, 12px);
+}
+
+.risk-factor-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.risk-factor-label {
+  font-weight: 600;
+  font-size: var(--fs-sm, 14px);
+  color: var(--text-primary, #101828);
+}
+
+.risk-factor-value {
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-secondary, #667085);
+  margin-top: 2px;
+}
+
+.risk-factor-weight {
+  font-size: var(--fs-xs, 12px);
+  font-weight: 700;
+  color: var(--brand-primary, #2f6690);
+  background: #eff8ff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+/* 7-Day Risk Trend Chart */
+.risk-trend-card {
+  margin-top: var(--sp-1, 4px);
+}
+
+.risk-trend-chart-wrapper {
+  padding-top: var(--sp-3, 12px);
+}
+
+.risk-trend-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--sp-3, 12px);
+  align-items: flex-end;
+  min-height: 200px;
+}
+
+.risk-trend-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.risk-trend-score-badge {
+  font-size: var(--fs-xs, 12px);
+  font-weight: 700;
+}
+
+.risk-trend-bar-track {
+  width: 100%;
+  max-width: 48px;
+  height: 130px;
+  background: var(--bg-subtle, #f9fafb);
+  border: 1px solid var(--border-default, #eaecf0);
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  align-items: flex-end;
+  padding: 3px;
+  overflow: hidden;
+}
+
+.risk-trend-bar-fill {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.5s ease;
+}
+
+.risk-trend-count-tag {
+  font-size: 11px;
+  color: var(--text-secondary, #667085);
+}
+
+.risk-trend-day-label {
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-primary, #101828);
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .risk-overall-body {
+    grid-template-columns: 1fr;
+    gap: var(--sp-3, 12px);
+  }
+
+  .risk-sections-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .risk-trend-chart-grid {
+    gap: 4px;
+  }
+  .risk-trend-bar-track {
+    max-width: 28px;
+  }
+  .risk-trend-score-badge {
+    font-size: 10px;
+  }
+  .risk-trend-count-tag {
+    font-size: 9px;
+  }
+}

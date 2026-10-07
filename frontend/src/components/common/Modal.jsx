@@ -6,8 +6,9 @@ import "./Modal.css";
  * Modal — lightweight overlay dialog, closes on backdrop click or Escape.
  * Used for incident/detail drill-downs across role dashboards.
  */
-function Modal({ title, onClose, children, footer }) {
+function Modal({ open = true, title, onClose, children, footer }) {
   useEffect(() => {
+    if (!open) return;
     const onKeyDown = (e) => {
       if (e.key === "Escape") onClose();
     };
@@ -17,7 +18,9 @@ function Modal({ title, onClose, children, footer }) {
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = "";
     };
-  }, [onClose]);
+  }, [open, onClose]);
+
+  if (!open) return null;
 
   return (
     <div className="modal-overlay" onClick={onClose}>

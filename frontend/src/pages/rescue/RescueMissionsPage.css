@@ -1,0 +1,110 @@
+.missions-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5, 20px);
+}
+
+.missions-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--sp-3, 12px);
+}
+
+.missions-head-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3, 12px);
+  margin-bottom: var(--sp-1, 4px);
+}
+
+.missions-head-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3, 12px);
+}
+
+.missions-last-updated {
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-secondary, #667085);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Toolbar & Filters */
+.missions-filter-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-3, 12px);
+}
+
+.missions-search-box {
+  position: relative;
+  flex: 1;
+  min-width: 260px;
+}
+
+.missions-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary, #667085);
+}
+
+.missions-search-input {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--border-default, #d0d5dd);
+  background: var(--bg-surface, #ffffff);
+  font-size: var(--fs-sm, 13px);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.missions-search-input:focus {
+  border-color: var(--brand-primary, #2f6690);
+}
+
+.missions-select-group {
+  display: flex;
+  gap: var(--sp-2, 8px);
+  flex-wrap: wrap;
+}
+
+.missions-select {
+  padding: 8px 12px;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--border-default, #d0d5dd);
+  background: var(--bg-surface, #ffffff);
+  font-size: var(--fs-xs, 13px);
+  font-weight: 500;
+  color: var(--text-primary, #101828);
+  outline: none;
+}
+
+/* Error box */
+.missions-error-box {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3, 12px);
+  padding: var(--sp-3, 12px) var(--sp-4, 16px);
+  background-color: #fef3f2;
+  border: 1px solid #fee4e2;
+  border-radius: var(--radius-md, 8px);
+  color: #b42318;
+  font-size: var(--fs-sm, 13px);
+}
+
+/* No data card */
+.missions-nodata-card {
+  background: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-default, #eaecf0);
+  border-radius: var(--radius-lg, 8px);
+  padding: var(--sp-6, 24px);
+}

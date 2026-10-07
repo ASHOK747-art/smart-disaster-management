@@ -8,6 +8,8 @@ import hospitalRoutes from "./routes/hospitals.js";
 import shelterRoutes from "./routes/shelters.js";
 import rescueTeamRoutes from "./routes/rescueTeams.js";
 import predictionRoutes from "./routes/predictions.js";
+import userRoutes from "./routes/users.js";
+import analyticsRoutes from "./routes/analytics.js";
 import { notFoundHandler, errorHandler } from "./middleware/errorHandler.js";
 import { uploadsDir } from "./config/paths.js";
 
@@ -40,6 +42,8 @@ app.use("/api/hospitals", hospitalRoutes);
 app.use("/api/shelters", shelterRoutes);
 app.use("/api/rescue-teams", rescueTeamRoutes);
 app.use("/api/predictions", predictionRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/analytics", analyticsRoutes);
 // Future phases mount here as they're built:
 // app.use("/api/rescue", rescueRoutes);
 // app.use("/api/hospitals", hospitalRoutes);

@@ -13,10 +13,20 @@ import SheltersPage from "./pages/citizen/SheltersPage";
 import AlertsPage from "./pages/citizen/AlertsPage";
 import ProfilePage from "./pages/citizen/ProfilePage";
 import RescueDashboard from "./pages/rescue/RescueDashboard";
+import RescueMissionsPage from "./pages/rescue/RescueMissionsPage";
 import VolunteerDashboard from "./pages/volunteer/VolunteerDashboard";
 import HospitalDashboard from "./pages/hospital/HospitalDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminIncidentsPage from "./pages/admin/AdminIncidentsPage";
+import AdminRescueTeamsPage from "./pages/admin/AdminRescueTeamsPage";
+import AdminVolunteersPage from "./pages/admin/AdminVolunteersPage";
+import AdminHospitalsPage from "./pages/admin/AdminHospitalsPage";
+import AdminSheltersPage from "./pages/admin/AdminSheltersPage";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminRiskMonitoringPage from "./pages/admin/AdminRiskMonitoringPage";
+import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
+import AdminAlertsPage from "./pages/admin/AdminAlertsPage";
+import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import DisasterMapPage from "./pages/public/DisasterMapPage";
 import PlaceholderPage from "./components/common/PlaceholderPage";
 import ProtectedRoute from "./components/common/ProtectedRoute";
@@ -57,6 +67,7 @@ function App() {
           {/* Rescue dashboard */}
           <Route element={<ProtectedRoute allowedRoles={["rescue", "admin"]} />}>
             <Route path="/rescue/dashboard" element={<RescueDashboard />} />
+            <Route path="/rescue/missions" element={<RescueMissionsPage />} />
             <Route path="/rescue/incidents" element={<AdminIncidentsPage />} />
           </Route>
 
@@ -70,10 +81,19 @@ function App() {
             <Route path="/hospital/dashboard" element={<HospitalDashboard />} />
           </Route>
 
-          {/* Admin dashboard & incidents */}
+          {/* Admin dashboard & management routes */}
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/incidents" element={<AdminIncidentsPage />} />
+            <Route path="/admin/risk-monitoring" element={<AdminRiskMonitoringPage />} />
+            <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+            <Route path="/admin/alerts" element={<AdminAlertsPage />} />
+            <Route path="/admin/settings" element={<AdminSettingsPage />} />
+            <Route path="/admin/rescue-teams" element={<AdminRescueTeamsPage />} />
+            <Route path="/admin/volunteers" element={<AdminVolunteersPage />} />
+            <Route path="/admin/hospitals" element={<AdminHospitalsPage />} />
+            <Route path="/admin/shelters" element={<AdminSheltersPage />} />
+            <Route path="/admin/users" element={<AdminUsersPage />} />
           </Route>
         </Route>
       </Route>

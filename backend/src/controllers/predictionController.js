@@ -1,6 +1,12 @@
 import { spawn } from "child_process";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
 import Incident, { INCIDENT_TYPES } from "../models/Incident.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function calculateCategory(riskScore) {
   if (riskScore >= 75) return "Critical";
@@ -348,3 +354,16 @@ export const predictDistrictRisk = asyncHandler(
     });
   }
 );
+
+// GET /api/predictions/districts
+export const getDistrictFloodRisks = asyncHandler(async (_req, res) => {
+  const filePath = path.join(__dirname, "../data/district_flood_risk.json");
+  if (fs.existsSync(filePath)) {
+    const raw = fs.readFileSync(filePath, "utf-8");
+    return res.json(JSON.parse(raw));
+  }
+  return res.status(404).json({
+    success: false,
+    message: "District risk dataset not found.",
+  });
+});

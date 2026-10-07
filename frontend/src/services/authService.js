@@ -25,6 +25,11 @@ export async function logout() {
   return { success: true };
 }
 
+export async function changePassword({ currentPassword, newPassword }) {
+  const response = await api.put("/auth/change-password", { currentPassword, newPassword });
+  return response.data;
+}
+
 // Admin-only: used to populate the "assign responder" picker.
 export async function getUsersByRole(role) {
   const response = await api.get("/auth/users", { params: { role } });
